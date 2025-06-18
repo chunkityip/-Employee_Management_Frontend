@@ -6,10 +6,10 @@ import { AuthService } from './auth/service.guard';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit{
-  // islogin: Observable<boolean>;
+  islogin: Observable<boolean> | undefined;
   key:any;
   title = 'Employee-registration-client';
 
