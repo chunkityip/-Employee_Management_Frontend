@@ -9,6 +9,7 @@ import { LogoutComponent } from './logout/logout.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { SearchComponent } from './search/search.component';
 import { UpdateComponent } from './update/update.component';
+import { HrRegistrationComponent } from './hr-registration/hr-registration.component';
 
 const routes: Routes = [
   {path:"",redirectTo:"home", pathMatch: 'full'},
@@ -19,7 +20,8 @@ const routes: Routes = [
   {path:"search",component:SearchComponent},
   {path:"profile",component:EmployeeprofileComponent,canActivate: [AuthGuard]},
   {path:"update", component:UpdateComponent},
-  {path:"delete",component:DeleteComponent}
+  {path:"delete",component:DeleteComponent},
+  { path: 'hr-registration', component: HrRegistrationComponent },
 ];
 
 @NgModule({

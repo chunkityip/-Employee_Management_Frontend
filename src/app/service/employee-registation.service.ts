@@ -7,8 +7,9 @@ import { User } from '../types/user';
   providedIn: 'root'
 })
 export class EmployeeRegistationService {
-
+  
   public employee: any;
+  private baseUrl = 'http://localhost:8080/api/v1/users';
 
   constructor(private http: HttpClient) { }
 
@@ -18,11 +19,40 @@ export class EmployeeRegistationService {
       'Accept': 'application/json'
     });
 
-    console.log('Making login request to:', 'http://localhost:8080/api/v1/users/login');
+    console.log('Making login request to:', `${this.baseUrl}/login`);
     console.log('User data:', user);
 
-    return this.http.post<boolean>('http://localhost:8080/api/v1/users/login', user, { 
-      headers: headers 
+    return this.http.post<boolean>(`${this.baseUrl}/login`, user, {
+      headers: headers
+    });
+  }
+
+  public registerUser(user: any): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    console.log('Making registration request to:', `${this.baseUrl}/register`);
+    console.log('Registration data:', user);
+
+    return this.http.post<any>(`${this.baseUrl}/register`, user, {
+      headers: headers
+    });
+  }
+
+  // HR Registration method
+  public registerHR(hrUser: any): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    console.log('Making HR registration request to:', `${this.baseUrl}/register`);
+    console.log('HR registration data:', hrUser);
+
+    return this.http.post<any>(`${this.baseUrl}/register`, hrUser, {
+      headers: headers
     });
   }
 }

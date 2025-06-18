@@ -1,1 +1,99 @@
-<p>registration works!</p>
+<form [formGroup]="form" class="container col-sm-5 description">
+    <fieldset class="row">
+        <h6>{{message}}</h6>
+        <div class="form-group row">
+            <h4 class="col-sm-10">Register Now</h4>
+            <button class="btn btn-outline-info col-sm-2 pull-right" routerLink='/home' type="button" name="back">Back</button>
+        </div>
+        <hr>
+        <div class="form-group">
+            <label for="Uid">User Id:</label>
+            <input class="form-control" type="text" [(ngModel)]="employee.id" placeholder="Enter valid userID" 
+                formControlName="Uid" [ngClass]="{ 'is-invalid': submitted && f['Uid'].errors }" />
+            <div *ngIf="submitted && f['Uid'].errors" class="invalid-feedback">
+                <div *ngIf="f['Uid'].errors['required']">User Id is required</div>
+                <div *ngIf="f['Uid'].errors['minlength']">User Id must be at least 5 characters</div>
+                <div *ngIf="f['Uid'].errors['maxlength']">User Id must not exceed 10 characters</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="firstname">FirstName:</label>
+            <input type="text" [(ngModel)]="employee.firstname" class="form-control" maxlength="28" placeholder="Enter your firstname..."
+                formControlName="firstname" [ngClass]="{ 'is-invalid': submitted && f['firstname'].errors }" />
+            <div *ngIf="submitted && f['firstname'].errors" class="invalid-feedback">
+                <div *ngIf="f['firstname'].errors['required']">FirstName is required</div>
+                <div *ngIf="f['firstname'].errors['minlength']">FirstName must be at least 3 characters</div>
+                <div *ngIf="f['firstname'].errors['maxlength']">FirstName must not exceed 20 characters</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="lastname">LastName:</label>
+            <input type="text" [(ngModel)]="employee.lastname" class="form-control" maxlength="28" placeholder="Enter your lastname..."
+                formControlName="lastname" [ngClass]="{ 'is-invalid': submitted && f['lastname'].errors }" />
+            <div *ngIf="submitted && f['lastname'].errors" class="invalid-feedback">
+                <div *ngIf="f['lastname'].errors['required']">LastName is required</div>
+                <div *ngIf="f['lastname'].errors['minlength']">LastName must be at least 3 characters</div>
+                <div *ngIf="f['lastname'].errors['maxlength']">LastName must not exceed 20 characters</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="email">Email:</label>
+            <input class="form-control" type="email" [(ngModel)]="employee.email" placeholder="Enter valid email address"
+                formControlName="email" [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" />
+            <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                <div *ngIf="f['email'].errors['required']">Email is required</div>
+                <div *ngIf="f['email'].errors['email']">Email is invalid</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="password">Password:</label>
+            <input type="password" [(ngModel)]="employee.password" class="form-control" maxlength="28" placeholder="Enter password"
+                formControlName="password" [ngClass]="{ 'is-invalid': submitted && f['password'].errors }" />
+            <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+                <div *ngIf="f['password'].errors['required']">Password is required</div>
+                <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+                <div *ngIf="f['password'].errors['maxlength']">Password must not exceed 40 characters</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="dob">Date of Birth:</label>
+            <input class="form-control" type="date" [(ngModel)]="employee.dob" placeholder="Enter Date of Birth" 
+                formControlName="dob" [ngClass]="{ 'is-invalid': submitted && f['dob'].errors }" />
+            <div *ngIf="submitted && f['dob'].errors" class="invalid-feedback">
+                <div *ngIf="f['dob'].errors['required']">Date Of Birth is required</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="mobileno">Mobile No:</label>
+            <input class="form-control" type="text" [(ngModel)]="employee.mobileno" placeholder="Enter valid mobile no" 
+                formControlName="mobileno" [ngClass]="{ 'is-invalid': submitted && f['mobileno'].errors }" />
+            <div *ngIf="submitted && f['mobileno'].errors" class="invalid-feedback">
+                <div *ngIf="f['mobileno'].errors['required']">Mobile number is required</div>
+                <div *ngIf="f['mobileno'].errors['minlength']">Mobile number must be at least 10 characters</div>
+                <div *ngIf="f['mobileno'].errors['maxlength']">Mobile number must not exceed 12 characters</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="domain">Domain:</label>
+            <input class="form-control" type="text" [(ngModel)]="employee.domain" placeholder="fullstack/backend/developer" 
+            formControlName="domain" [ngClass]="{ 'is-invalid': submitted && f['domain'].errors }"/>
+            <div *ngIf="submitted && f['domain'].errors" class="invalid-feedback">
+                <div *ngIf="f['domain'].errors['required']">Domain is required</div>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label for="experience">Experience:</label>
+            <input class="form-control" type="number" [(ngModel)]="employee.experience" placeholder="Total year of experience" 
+                formControlName="experience" [ngClass]="{ 'is-invalid': submitted && f['experience'].errors }" />
+            <div *ngIf="submitted && f['experience'].errors" class="invalid-feedback">
+                <div *ngIf="f['experience'].errors['required']">Experience is required</div>
+                <div *ngIf="f['experience'].errors['max']">Experience must not exceed 30 years</div>
+            </div> 
+        </div>
+        <div class="form-group text-center">
+            <input class="btn btn-outline-success" type="submit" name="submit_reg" value="Register" (click)="registerNow()">
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <input class="btn btn-outline-primary" type="reset" name="reset" value="Reset" (click)="onReset()">
+        </div>
+    </fieldset>
+</form>

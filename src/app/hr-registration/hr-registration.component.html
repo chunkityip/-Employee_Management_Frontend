@@ -1,0 +1,51 @@
+<form [formGroup]="form" class="container col-sm-5 description">
+    <fieldset>
+        <h6>{{message}}</h6>
+        <div class="form-group row">
+            <h4 class="col-sm-10">Register HR</h4>
+            <button class="btn btn-outline-info col-sm-2 pull-right" routerLink='/home' type="button" name="back">Back</button>
+        </div>
+        <hr>
+        
+        <!-- Username/Email -->
+        <div class="form-group">
+            <label for="userName">Username (Email):</label>
+            <input class="form-control" type="email" [(ngModel)]="hrUser.userName" placeholder="Enter your email as username" 
+                formControlName="userName" [ngClass]="{ 'is-invalid': submitted && f['userName'].errors }" />
+            <div *ngIf="submitted && f['userName'].errors" class="invalid-feedback">
+                <div *ngIf="f['userName'].errors['required']">Username is required</div>
+                <div *ngIf="f['userName'].errors['email']">Please enter a valid email address</div>
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" [(ngModel)]="hrUser.password" class="form-control" placeholder="Enter password"
+                formControlName="password" [ngClass]="{ 'is-invalid': submitted && f['password'].errors }" />
+            <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+                <div *ngIf="f['password'].errors['required']">Password is required</div>
+                <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+                <div *ngIf="f['password'].errors['maxlength']">Password must not exceed 40 characters</div>
+            </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" [(ngModel)]="hrUser.confirmPassword" class="form-control" placeholder="Confirm password"
+                formControlName="confirmPassword" [ngClass]="{ 'is-invalid': submitted && f['confirmPassword'].errors }" />
+            <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
+                <div *ngIf="f['confirmPassword'].errors['required']">Please confirm your password</div>
+                <div *ngIf="f['confirmPassword'].errors['passwordMismatch']">Passwords do not match</div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-group text-center">
+            <input class="btn btn-outline-success" type="submit" name="submit_reg" value="Register HR" (click)="registerHR()">
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <input class="btn btn-outline-primary" type="reset" name="reset" value="Reset" (click)="onReset()">
+        </div>
+    </fieldset>
+</form>

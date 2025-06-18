@@ -1,12 +1,25 @@
 <header class="page-header header container-fluid">
     <div class="overlay"></div>
-
+     
     <div class="description">
         <h1>Welcome to Home page</h1>
         <p>This is a demo web page where an HR can register his/her credentials and login to the portal</p>
-        <button class="btn btn-outline-secondary btn-lg mr-8" (click)="navigateToRegister()">Register</button>
-        <button class="btn btn-outline-secondary btn-lg" (click)="navigateToLogin()">Login</button>
-
+        
+        <div class="button-group">
+            <h3>Employee Portal</h3>
+            <button class="btn btn-outline-secondary btn-lg mr-8" (click)="navigateToRegister()">
+                Register Employee
+            </button>
+        </div>
+        
+        <div class="button-group">
+            <h3>HR Portal</h3>
+            <button class="btn btn-outline-primary btn-lg mr-8" (click)="navigateToHRRegister()">
+                Register HR
+            </button>
+            <button class="btn btn-outline-success btn-lg" (click)="navigateToLogin()">
+                HR Login
+            </button>
+        </div>
     </div>
-    
 </header>

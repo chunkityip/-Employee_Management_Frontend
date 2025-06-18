@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../auth/service.guard';
 import { User } from '../types/user';
 
@@ -8,19 +9,47 @@ import { User } from '../types/user';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   submitted = false;
   message = '';
   loading = false;
+  private subscriptions: Subscription[] = [];
 
-  constructor(private auth: AuthService, private formBuilder: FormBuilder) {}
+  constructor(
+    private auth: AuthService, 
+    private formBuilder: FormBuilder
+  ) {}
 
   ngOnInit() {
     this.form = this.formBuilder.group({
       userName: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     });
+
+    // Subscribe to authentication state changes
+    const authSub = this.auth.isLoggedIn.subscribe(isLoggedIn => {
+      console.log('LoginComponent: Auth state changed:', isLoggedIn);
+      this.loading = false;
+      if (isLoggedIn) {
+        this.message = 'Login successful! Redirecting...';
+      }
+    });
+
+    // Subscribe to login status messages
+    const messageSub = this.auth.loginStatus.subscribe(statusMessage => {
+      console.log('LoginComponent: Status message received:', statusMessage);
+      if (statusMessage) {
+        this.message = statusMessage;
+        this.loading = false;
+      }
+    });
+
+    this.subscriptions.push(authSub, messageSub);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   get f(): { [key: string]: AbstractControl } {
@@ -51,17 +80,17 @@ export class LoginComponent implements OnInit {
       password: this.form.value.password
     };
 
-    console.log('Login attempt with user:', user);
+    console.log('LoginComponent: Starting login attempt with user:', user);
 
-    // Subscribe to the auth service to handle loading state
+    // Use the AuthService login method
     this.auth.login(user);
-    
-    // Reset loading after a delay if no response
+
+    // Set a timeout to reset loading state if login takes too long
     setTimeout(() => {
       if (this.loading) {
         this.loading = false;
-        this.message = '';
+        this.message = 'Login is taking longer than expected...';
       }
-    }, 10000); // 10 second timeout
+    }, 10000);
   }
 }
