@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EmployeeDto } from '../types/employee-dto';
 import { EmployeeProfileService } from '../service/employee-profile.service';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-employee-profile',
@@ -9,9 +10,6 @@ import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
   styleUrls: ['./employeeprofile.component.scss']
 })
 export class EmployeeProfileComponent implements OnInit {
-deleteEmployee(arg0: any) {
-throw new Error('Method not implemented.');
-}
   employee: any;
   name: string | undefined;
   message: any;
@@ -19,6 +17,21 @@ throw new Error('Method not implemented.');
   // AG Grid properties
   private gridApi!: GridApi;
   rowData: any[] = [];
+  
+  // Modal properties
+  showAddEmployeeModal = false;
+  showEditEmployeeModal = false;
+  employeeForm!: FormGroup;
+  editEmployeeForm!: FormGroup;
+  formSubmitted = false;
+  editFormSubmitted = false;
+  formMessage = '';
+  editFormMessage = '';
+  formMessageType: 'success' | 'error' = 'success';
+  editFormMessageType: 'success' | 'error' = 'success';
+  isSaving = false;
+  isUpdating = false;
+  currentEditingEmployee: any = null;
   
   columnDefs: ColDef[] = [
     { field: 'id', headerName: 'Id', width: 80 },
@@ -55,11 +68,43 @@ throw new Error('Method not implemented.');
     resizable: true
   };
   
-  constructor(private service: EmployeeProfileService) { }
+  constructor(
+    private service: EmployeeProfileService,
+    private formBuilder: FormBuilder
+  ) { }
   
   ngOnInit() {
     this.employee = this.service.employee;
     this.loadEmployees();
+    this.initializeForm();
+  }
+  
+  initializeForm() {
+    // Add Employee Form
+    this.employeeForm = this.formBuilder.group({
+      id: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(10)]],
+      firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
+      dob: ['', Validators.required],
+      phone: ['', Validators.required],
+      domain: ['', Validators.required],
+      experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
+    });
+    
+    // Edit Employee Form - password is optional for updates
+    this.editEmployeeForm = this.formBuilder.group({
+      id: ['', [Validators.required]],
+      firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.minLength(8), Validators.maxLength(100)]], // Optional for edit
+      dob: ['', Validators.required],
+      phone: ['', Validators.required],
+      domain: ['', Validators.required],
+      experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
+    });
   }
   
   onGridReady(params: GridReadyEvent) {
@@ -67,10 +112,8 @@ throw new Error('Method not implemented.');
   }
   
   loadEmployees() {
-    // Use the new getAllEmployees endpoint
     this.service.getAllEmployees().subscribe(
       employees => {
-        // Data is already in correct format from backend
         this.rowData = employees;
       }
     );
@@ -95,6 +138,7 @@ throw new Error('Method not implemented.');
     // Delete button
     const deleteButton = document.createElement('button');
     deleteButton.className = 'icon-button delete';
+    editButton.style.marginRight = '22px';
     deleteButton.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 6 5 6 21 6"></polyline>
@@ -113,39 +157,153 @@ throw new Error('Method not implemented.');
   }
   
   onEditClick(rowData: any) {
-    // TODO: Implement edit functionality
-    console.log('Edit employee:', rowData);
-    // You can navigate to edit page or open a modal
+    this.currentEditingEmployee = rowData;
+    this.showEditEmployeeModal = true;
+    this.editFormSubmitted = false;
+    this.editFormMessage = '';
+    
+    // Pre-fill the form with employee data
+    this.editEmployeeForm.patchValue({
+      id: rowData.id,
+      firstname: rowData.firstname,
+      lastname: rowData.lastname,
+      email: rowData.email,
+      password: '', // Leave password empty
+      dob: rowData.dob ? rowData.dob.split('T')[0] : '', // Format date for input
+      phone: rowData.phone,
+      domain: rowData.domain,
+      experience: rowData.experience
+    });
   }
   
   onDeleteClick(rowData: any) {
     if (confirm(`Are you sure you want to delete ${rowData.firstname} ${rowData.lastname}?`)) {
       this.service.deleteEmployee(rowData.email).subscribe(() => {
-        this.loadEmployees(); // Reload the grid after deletion
+        this.loadEmployees();
       });
     }
   }
   
-  // New methods for the enhanced UI
+  // Modal methods
+  openAddEmployeeModal() {
+    this.showAddEmployeeModal = true;
+    this.formSubmitted = false;
+    this.formMessage = '';
+    this.employeeForm.reset();
+  }
+  
+  closeModal() {
+    this.showAddEmployeeModal = false;
+    this.formSubmitted = false;
+    this.formMessage = '';
+    this.employeeForm.reset();
+  }
+  
+  closeEditModal() {
+    this.showEditEmployeeModal = false;
+    this.editFormSubmitted = false;
+    this.editFormMessage = '';
+    this.editEmployeeForm.reset();
+    this.currentEditingEmployee = null;
+  }
+  
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.employeeForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched || this.formSubmitted));
+  }
+  
+  isEditFieldInvalid(fieldName: string): boolean {
+    const field = this.editEmployeeForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched || this.editFormSubmitted));
+  }
+  
+  saveEmployee() {
+    this.formSubmitted = true;
+    
+    if (this.employeeForm.invalid) {
+      this.formMessage = 'Please fill all required fields correctly.';
+      this.formMessageType = 'error';
+      return;
+    }
+    
+    this.isSaving = true;
+    const employeeData: EmployeeDto = this.employeeForm.value;
+    
+    this.service.createEmployee(employeeData).subscribe({
+      next: () => {
+        this.formMessage = 'Employee added successfully!';
+        this.formMessageType = 'success';
+        this.isSaving = false;
+        
+        // Reload the grid
+        this.loadEmployees();
+        
+        // Close modal after a short delay
+        setTimeout(() => {
+          this.closeModal();
+        }, 1500);
+      },
+      error: (error) => {
+        console.error('Error adding employee:', error);
+        this.formMessage = error.error?.message || 'Failed to add employee. Please try again.';
+        this.formMessageType = 'error';
+        this.isSaving = false;
+      }
+    });
+  }
+  
+  updateEmployee() {
+    this.editFormSubmitted = true;
+    
+    if (this.editEmployeeForm.invalid) {
+      this.editFormMessage = 'Please fill all required fields correctly.';
+      this.editFormMessageType = 'error';
+      return;
+    }
+    
+    this.isUpdating = true;
+    const employeeData: EmployeeDto = this.editEmployeeForm.value;
+    
+    // If password is empty, don't include it in the update
+    if (!employeeData.password) {
+      // Set the original password or handle it based on your backend logic
+      employeeData.password = this.currentEditingEmployee.password || 'dummy123'; // You may need to adjust this
+    }
+    
+    this.service.updateEmployee(employeeData).subscribe({
+      next: () => {
+        this.editFormMessage = 'Employee updated successfully!';
+        this.editFormMessageType = 'success';
+        this.isUpdating = false;
+        
+        // Reload the grid
+        this.loadEmployees();
+        
+        // Close modal after a short delay
+        setTimeout(() => {
+          this.closeEditModal();
+        }, 1500);
+      },
+      error: (error) => {
+        console.error('Error updating employee:', error);
+        this.editFormMessage = error.error?.message || 'Failed to update employee. Please try again.';
+        this.editFormMessageType = 'error';
+        this.isUpdating = false;
+      }
+    });
+  }
+  
+  // Utility methods for the enhanced UI
   getActiveCount(): number {
-    // This is a placeholder - you can implement real logic
     return Math.floor(this.rowData.length * 0.8);
   }
   
   getDepartmentCount(): number {
-    // Count unique domains
     const domains = new Set(this.rowData.map(emp => emp.domain));
     return domains.size;
   }
   
-  openAddEmployeeModal() {
-    // TODO: Implement add employee modal
-    console.log('Open add employee modal');
-    // You can navigate to add page or open a modal
-  }
-  
   exportToExcel() {
-    // TODO: Implement export functionality
     console.log('Export to Excel');
     this.gridApi.exportDataAsCsv();
   }

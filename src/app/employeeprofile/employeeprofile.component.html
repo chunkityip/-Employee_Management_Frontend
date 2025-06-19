@@ -65,3 +65,262 @@
         </div>
     </div>
 </div>
+
+<!-- Add Employee Modal -->
+<div class="modal-overlay" *ngIf="showAddEmployeeModal" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Add New Employee</h3>
+            <button class="close-button" (click)="closeModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <form [formGroup]="employeeForm" class="employee-form">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="id">Employee ID:</label>
+                        <input type="text" id="id" formControlName="id" class="form-control" 
+                               placeholder="Enter employee ID" [ngClass]="{ 'is-invalid': isFieldInvalid('id') }">
+                        <div *ngIf="isFieldInvalid('id')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('id')?.errors?.['required']">Employee ID is required</div>
+                            <div *ngIf="employeeForm.get('id')?.errors?.['minlength']">Minimum 5 characters</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstname">First Name:</label>
+                        <input type="text" id="firstname" formControlName="firstname" class="form-control" 
+                               placeholder="Enter first name" [ngClass]="{ 'is-invalid': isFieldInvalid('firstname') }">
+                        <div *ngIf="isFieldInvalid('firstname')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('firstname')?.errors?.['required']">First name is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastname">Last Name:</label>
+                        <input type="text" id="lastname" formControlName="lastname" class="form-control" 
+                               placeholder="Enter last name" [ngClass]="{ 'is-invalid': isFieldInvalid('lastname') }">
+                        <div *ngIf="isFieldInvalid('lastname')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('lastname')?.errors?.['required']">Last name is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" formControlName="email" class="form-control" 
+                               placeholder="Enter email" [ngClass]="{ 'is-invalid': isFieldInvalid('email') }">
+                        <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
+                            <div *ngIf="employeeForm.get('email')?.errors?.['email']">Invalid email format</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" formControlName="password" class="form-control" 
+                               placeholder="Enter password" [ngClass]="{ 'is-invalid': isFieldInvalid('password') }">
+                        <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
+                            <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Minimum 8 characters</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dob">Date of Birth:</label>
+                        <input type="date" id="dob" formControlName="dob" class="form-control" 
+                               [ngClass]="{ 'is-invalid': isFieldInvalid('dob') }">
+                        <div *ngIf="isFieldInvalid('dob')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('dob')?.errors?.['required']">Date of birth is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone:</label>
+                        <input type="number" id="phone" formControlName="phone" class="form-control" 
+                               placeholder="Enter phone number" [ngClass]="{ 'is-invalid': isFieldInvalid('phone') }">
+                        <div *ngIf="isFieldInvalid('phone')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('phone')?.errors?.['required']">Phone is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="domain">Domain:</label>
+                        <select id="domain" formControlName="domain" class="form-control" 
+                                [ngClass]="{ 'is-invalid': isFieldInvalid('domain') }">
+                            <option value="">Select domain</option>
+                            <option value="backend">Backend</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="fullstack">Fullstack</option>
+                            <option value="developer">Developer</option>
+                            <option value="devops">DevOps</option>
+                        </select>
+                        <div *ngIf="isFieldInvalid('domain')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('domain')?.errors?.['required']">Domain is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience">Experience (years):</label>
+                        <input type="number" id="experience" formControlName="experience" class="form-control" 
+                               placeholder="Years of experience" min="0" max="30"
+                               [ngClass]="{ 'is-invalid': isFieldInvalid('experience') }">
+                        <div *ngIf="isFieldInvalid('experience')" class="invalid-feedback">
+                            <div *ngIf="employeeForm.get('experience')?.errors?.['required']">Experience is required</div>
+                            <div *ngIf="employeeForm.get('experience')?.errors?.['max']">Maximum 30 years</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-message" *ngIf="formMessage">
+                    <p [ngClass]="{'error': formMessageType === 'error', 'success': formMessageType === 'success'}">
+                        {{formMessage}}
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn btn-primary" (click)="saveEmployee()" [disabled]="isSaving">
+                {{isSaving ? 'Saving...' : 'Save Employee'}}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div class="modal-overlay" *ngIf="showEditEmployeeModal" (click)="closeEditModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Edit Employee</h3>
+            <button class="close-button" (click)="closeEditModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <form [formGroup]="editEmployeeForm" class="employee-form">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="edit-id">Employee ID:</label>
+                        <input type="text" id="edit-id" formControlName="id" class="form-control" 
+                               placeholder="Enter employee ID" [readonly]="true" style="background-color: #f5f5f5;">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-firstname">First Name:</label>
+                        <input type="text" id="edit-firstname" formControlName="firstname" class="form-control" 
+                               placeholder="Enter first name" [ngClass]="{ 'is-invalid': isEditFieldInvalid('firstname') }">
+                        <div *ngIf="isEditFieldInvalid('firstname')" class="invalid-feedback">
+                            <div *ngIf="editEmployeeForm.get('firstname')?.errors?.['required']">First name is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-lastname">Last Name:</label>
+                        <input type="text" id="edit-lastname" formControlName="lastname" class="form-control" 
+                               placeholder="Enter last name" [ngClass]="{ 'is-invalid': isEditFieldInvalid('lastname') }">
+                        <div *ngIf="isEditFieldInvalid('lastname')" class="invalid-feedback">
+                            <div *ngIf="editEmployeeForm.get('lastname')?.errors?.['required']">Last name is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-email">Email:</label>
+                        <input type="email" id="edit-email" formControlName="email" class="form-control" 
+                               placeholder="Enter email" [readonly]="true" style="background-color: #f5f5f5;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-password">Password:</label>
+                        <input type="password" id="edit-password" formControlName="password" class="form-control" 
+                               placeholder="Leave blank to keep current password">
+                        <small style="color: #666;">Optional: Only fill if changing password</small>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-dob">Date of Birth:</label>
+                        <input type="date" id="edit-dob" formControlName="dob" class="form-control" 
+                               [ngClass]="{ 'is-invalid': isEditFieldInvalid('dob') }">
+                        <div *ngIf="isEditFieldInvalid('dob')" class="invalid-feedback">
+                            <div *ngIf="editEmployeeForm.get('dob')?.errors?.['required']">Date of birth is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-phone">Phone:</label>
+                        <input type="number" id="edit-phone" formControlName="phone" class="form-control" 
+                               placeholder="Enter phone number" [ngClass]="{ 'is-invalid': isEditFieldInvalid('phone') }">
+                        <div *ngIf="isEditFieldInvalid('phone')" class="invalid-feedback">
+                            <div *ngIf="editEmployeeForm.get('phone')?.errors?.['required']">Phone is required</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-domain">Domain:</label>
+                        <select id="edit-domain" formControlName="domain" class="form-control" 
+                                [ngClass]="{ 'is-invalid': isEditFieldInvalid('domain') }">
+                            <option value="">Select domain</option>
+                            <option value="backend">Backend</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="fullstack">Fullstack</option>
+                            <option value="developer">Developer</option>
+                            <option value="devops">DevOps</option>
+                        </select>
+                        <div *ngIf="isEditFieldInvalid('domain')" class="invalid-feedback">
+                            <div *ngIf="editEmployeeForm.get('domain')?.errors?.['required']">Domain is required</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-experience">Experience (years):</label>
+                        <input type="number" id="edit-experience" formControlName="experience" class="form-control" 
+                               placeholder="Years of experience" min="0" max="30"
+                               [ngClass]="{ 'is-invalid': isEditFieldInvalid('experience') }">
+                        <div *ngIf="isEditFieldInvalid('experience')" class="invalid-feedback">
+                            <div *ngIf="editEmployeeForm.get('experience')?.errors?.['required']">Experience is required</div>
+                            <div *ngIf="editEmployeeForm.get('experience')?.errors?.['max']">Maximum 30 years</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-message" *ngIf="editFormMessage">
+                    <p [ngClass]="{'error': editFormMessageType === 'error', 'success': editFormMessageType === 'success'}">
+                        {{editFormMessage}}
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+            <button class="btn btn-primary" (click)="updateEmployee()" [disabled]="isUpdating">
+                {{isUpdating ? 'Updating...' : 'Update Employee'}}
+            </button>
+        </div>
+    </div>
+</div>
