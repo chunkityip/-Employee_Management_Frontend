@@ -1,5 +1,6 @@
 // Create this file as: src/app/types/user-dto.ts
 export interface UserDto {
+  id?: string;               // For user ID, typically maps to userName
   userName?: string;          // For username field
   firstName?: string;         // For first name
   lastName?: string;          // For last name  

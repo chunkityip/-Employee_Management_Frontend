@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../types/user';
+import { UserDto } from '../types/user-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,7 @@ export class EmployeeRegistationService {
     });
   }
 
-  public registerUser(user: any): Observable<any> {
+  public registerEmployee(user: any): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -55,4 +56,33 @@ export class EmployeeRegistationService {
       headers: headers
     });
   }
+
+  public updatePassword(username: string, newPassword: string): Observable<any> {
+    const headers = new HttpHeaders({
+        'Content-Type': 'text/plain',  // ✅ Correct for string body
+        'Accept': 'application/json'
+    });
+
+    console.log('Making password update request to:', `${this.baseUrl}/${username}/password`);
+    console.log('Updating password for user:', username);
+
+    return this.http.put<any>(`${this.baseUrl}/${username}/password`, newPassword, {
+        headers: headers
+    });
+  }
+
+  public findUser(username: string): Observable<UserDto> {
+    const headers = new HttpHeaders({
+        'Accept': 'application/json'
+    });
+
+    console.log('Making find user request to:', `${this.baseUrl}/${username}`);
+    console.log('Searching for username:', username);
+
+    return this.http.get<UserDto>(`${this.baseUrl}/${username}`, {
+        headers: headers
+    });
+  }
+
+
 }

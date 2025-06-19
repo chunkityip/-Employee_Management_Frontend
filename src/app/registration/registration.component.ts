@@ -81,7 +81,7 @@ export class RegistrationComponent implements OnInit {
     console.log('Username for login should be:', userData.userName);
     console.log('Password for login should be:', userData.password);
 
-    this.employeeService.registerUser(userData).subscribe({
+    this.employeeService.registerEmployee(userData).subscribe({
       next: (response) => {
         console.log('Registration successful:', response);
         this.message = `Registration successful! Use Username: "${userData.userName}" to login. Redirecting...`;
