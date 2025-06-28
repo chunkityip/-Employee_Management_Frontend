@@ -279,11 +279,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Chunkit Yip(CK) - Initial work
 
-## 🙏 Acknowledgments
-
-- Angular Documentation
-- AG-Grid Documentation
-- Bootstrap Team
-- The amazing Angular community
