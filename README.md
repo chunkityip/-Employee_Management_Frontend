@@ -77,6 +77,11 @@ private baseUrl = 'http://localhost:8080/api/v1/users';
 ng serve
 ```
 
+or 
+```bash
+npm start
+```
+
 Or with a specific port:
 ```bash
 ng serve --port 4201
