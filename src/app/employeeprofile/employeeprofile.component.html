@@ -1,326 +1,344 @@
 <div class="employee-profile-container">
-    <!-- Hero Section with Gradient Background -->
-    <div class="hero-section">
-        <div class="hero-content">
-            <div class="welcome-text">
-                <h1>Welcome back</h1>
-                <p class="subtitle">Manage your team efficiently with our employee portal</p>
-            </div>
-            <div class="hero-stats">
-                <div class="stat-card">
-                    <div class="stat-number">{{rowData.length}}</div>
-                    <div class="stat-label">Total Employees</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{getActiveCount()}}</div>
-                    <div class="stat-label">Active Today</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{getDepartmentCount()}}</div>
-                    <div class="stat-label">Departments</div>
-                </div>
-            </div>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="welcome-text">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Manage your team efficiently with our employee portal</p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-number">{{ rowData.length }}</div>
+          <div class="stat-label">Total Employees</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ getDepartmentCount() }}</div>
+          <div class="stat-label">Departments</div>
+        </div>
+      </div>
     </div>
-    
-    <!-- Main Content Area -->
-    <div class="main-content">
-        <!-- Action Bar -->
-        <div class="action-bar">
-            <h2 class="section-title">Employee Directory</h2>
-            <div class="action-buttons">
-                <button class="btn btn-primary" (click)="openAddEmployeeModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Add Employee
-                </button>
-                <button class="btn btn-secondary" (click)="exportToExcel()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Export
-                </button>
-            </div>
-        </div>
-        
-        <!-- Grid Container with Enhanced Styling -->
-        <div class="grid-wrapper">
-            <ag-grid-angular
-                style="width: 100%; height: 600px;"
-                class="ag-theme-alpine custom-grid"
-                [rowData]="rowData"
-                [columnDefs]="columnDefs"
-                [defaultColDef]="defaultColDef"
-                (gridReady)="onGridReady($event)"
-                [animateRows]="true"
-                [pagination]="true"
-                [paginationPageSize]="10"
-                [rowHeight]="60"
-                [headerHeight]="50">
-            </ag-grid-angular>
-        </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="action-bar">
+      <h2 class="section-title">Employee Directory</h2>
+      <div class="action-buttons">
+        <button class="btn btn-primary" type="button" (click)="openAddModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Employee
+        </button>
+        <button class="btn btn-secondary" type="button" (click)="exportToExcel()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export
+        </button>
+      </div>
     </div>
+
+    <div class="grid-wrapper">
+      <ag-grid-angular
+        style="width: 100%; height: 600px;"
+        class="ag-theme-alpine custom-grid"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        (gridReady)="onGridReady($event)"
+        [animateRows]="true"
+        [pagination]="true"
+        [paginationPageSize]="10"
+        [rowHeight]="60"
+        [headerHeight]="50">
+      </ag-grid-angular>
+    </div>
+  </div>
 </div>
 
 <!-- Add Employee Modal -->
-<div class="modal-overlay" *ngIf="showAddEmployeeModal" (click)="closeModal()">
-    <div class="modal-container" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h3>Add New Employee</h3>
-            <button class="close-button" (click)="closeModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <form [formGroup]="employeeForm" class="employee-form">
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label for="id">Employee ID:</label>
-                        <input type="text" id="id" formControlName="id" class="form-control" 
-                               placeholder="Enter employee ID" [ngClass]="{ 'is-invalid': isFieldInvalid('id') }">
-                        <div *ngIf="isFieldInvalid('id')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('id')?.errors?.['required']">Employee ID is required</div>
-                            <div *ngIf="employeeForm.get('id')?.errors?.['minlength']">Minimum 5 characters</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="firstname">First Name:</label>
-                        <input type="text" id="firstname" formControlName="firstname" class="form-control" 
-                               placeholder="Enter first name" [ngClass]="{ 'is-invalid': isFieldInvalid('firstname') }">
-                        <div *ngIf="isFieldInvalid('firstname')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('firstname')?.errors?.['required']">First name is required</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="lastname">Last Name:</label>
-                        <input type="text" id="lastname" formControlName="lastname" class="form-control" 
-                               placeholder="Enter last name" [ngClass]="{ 'is-invalid': isFieldInvalid('lastname') }">
-                        <div *ngIf="isFieldInvalid('lastname')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('lastname')?.errors?.['required']">Last name is required</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" formControlName="email" class="form-control" 
-                               placeholder="Enter email" [ngClass]="{ 'is-invalid': isFieldInvalid('email') }">
-                        <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
-                            <div *ngIf="employeeForm.get('email')?.errors?.['email']">Invalid email format</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" formControlName="password" class="form-control" 
-                               placeholder="Enter password" [ngClass]="{ 'is-invalid': isFieldInvalid('password') }">
-                        <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
-                            <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Minimum 8 characters</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="dob">Date of Birth:</label>
-                        <input type="date" id="dob" formControlName="dob" class="form-control" 
-                               [ngClass]="{ 'is-invalid': isFieldInvalid('dob') }">
-                        <div *ngIf="isFieldInvalid('dob')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('dob')?.errors?.['required']">Date of birth is required</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone:</label>
-                        <input type="number" id="phone" formControlName="phone" class="form-control" 
-                               placeholder="Enter phone number" [ngClass]="{ 'is-invalid': isFieldInvalid('phone') }">
-                        <div *ngIf="isFieldInvalid('phone')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('phone')?.errors?.['required']">Phone is required</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="domain">Domain:</label>
-                        <select id="domain" formControlName="domain" class="form-control" 
-                                [ngClass]="{ 'is-invalid': isFieldInvalid('domain') }">
-                            <option value="">Select domain</option>
-                            <option value="backend">Backend</option>
-                            <option value="frontend">Frontend</option>
-                            <option value="fullstack">Fullstack</option>
-                            <option value="developer">Developer</option>
-                            <option value="devops">DevOps</option>
-                        </select>
-                        <div *ngIf="isFieldInvalid('domain')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('domain')?.errors?.['required']">Domain is required</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="experience">Experience (years):</label>
-                        <input type="number" id="experience" formControlName="experience" class="form-control" 
-                               placeholder="Years of experience" min="0" max="30"
-                               [ngClass]="{ 'is-invalid': isFieldInvalid('experience') }">
-                        <div *ngIf="isFieldInvalid('experience')" class="invalid-feedback">
-                            <div *ngIf="employeeForm.get('experience')?.errors?.['required']">Experience is required</div>
-                            <div *ngIf="employeeForm.get('experience')?.errors?.['max']">Maximum 30 years</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-message" *ngIf="formMessage">
-                    <p [ngClass]="{'error': formMessageType === 'error', 'success': formMessageType === 'success'}">
-                        {{formMessage}}
-                    </p>
-                </div>
-            </form>
-        </div>
-        
-        <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-            <button class="btn btn-primary" (click)="saveEmployee()" [disabled]="isSaving">
-                {{isSaving ? 'Saving...' : 'Save Employee'}}
-            </button>
-        </div>
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Add New Employee</h3>
+      <button class="close-button" type="button" (click)="closeAddModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
+
+    <div class="modal-body">
+      <form [formGroup]="addForm" (ngSubmit)="saveEmployee()" class="employee-form">
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="id">Employee ID:</label>
+            <input id="id" type="text" class="form-control" autocomplete="off"
+                   formControlName="id" placeholder="Enter employee ID"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['id'].errors }" />
+            <div *ngIf="addFormSubmitted && af['id'].errors" class="invalid-feedback">
+              <div *ngIf="af['id'].errors?.['required']">Employee ID is required</div>
+              <div *ngIf="af['id'].errors?.['minlength']">Minimum {{ af['id'].errors['minlength'].requiredLength }} characters</div>
+              <div *ngIf="af['id'].errors?.['maxlength']">Maximum {{ af['id'].errors['maxlength'].requiredLength }} characters</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstname">First Name:</label>
+            <input id="firstname" type="text" class="form-control" autocomplete="given-name"
+                   formControlName="firstname" placeholder="Enter first name"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['firstname'].errors }" />
+            <div *ngIf="addFormSubmitted && af['firstname'].errors" class="invalid-feedback">
+              <div *ngIf="af['firstname'].errors?.['required']">First name is required</div>
+              <div *ngIf="af['firstname'].errors?.['minlength']">Minimum {{ af['firstname'].errors['minlength'].requiredLength }} characters</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastname">Last Name:</label>
+            <input id="lastname" type="text" class="form-control" autocomplete="family-name"
+                   formControlName="lastname" placeholder="Enter last name"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['lastname'].errors }" />
+            <div *ngIf="addFormSubmitted && af['lastname'].errors" class="invalid-feedback">
+              <div *ngIf="af['lastname'].errors?.['required']">Last name is required</div>
+              <div *ngIf="af['lastname'].errors?.['minlength']">Minimum {{ af['lastname'].errors['minlength'].requiredLength }} characters</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input id="email" type="email" class="form-control" autocomplete="email"
+                   formControlName="email" placeholder="Enter email"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['email'].errors }" />
+            <div *ngIf="addFormSubmitted && af['email'].errors" class="invalid-feedback">
+              <div *ngIf="af['email'].errors?.['required']">Email is required</div>
+              <div *ngIf="af['email'].errors?.['email']">Invalid email format</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input id="password" type="password" class="form-control" autocomplete="new-password"
+                   formControlName="password" placeholder="Enter password"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['password'].errors }" />
+            <div *ngIf="addFormSubmitted && af['password'].errors" class="invalid-feedback">
+              <div *ngIf="af['password'].errors?.['required']">Password is required</div>
+              <div *ngIf="af['password'].errors?.['minlength']">Minimum {{ af['password'].errors['minlength'].requiredLength }} characters</div>
+              <div *ngIf="af['password'].errors?.['pattern']">Must contain uppercase, lowercase and a number</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dob">Date of Birth:</label>
+            <input id="dob" type="date" class="form-control" autocomplete="bday"
+                   formControlName="dob"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['dob'].errors }" />
+            <div *ngIf="addFormSubmitted && af['dob'].errors" class="invalid-feedback">
+              <div *ngIf="af['dob'].errors?.['required']">Date of birth is required</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input id="phone" type="text" class="form-control" autocomplete="tel"
+                   formControlName="phone" placeholder="Enter phone number"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['phone'].errors }" />
+            <div *ngIf="addFormSubmitted && af['phone'].errors" class="invalid-feedback">
+              <div *ngIf="af['phone'].errors?.['required']">Phone is required</div>
+              <div *ngIf="af['phone'].errors?.['pattern']">Phone must be 10-12 digits only</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="domain">Domain:</label>
+            <select id="domain" class="form-control" formControlName="domain"
+                    [ngClass]="{ 'is-invalid': addFormSubmitted && af['domain'].errors }">
+              <option value="">Select domain</option>
+              <option value="backend">Backend</option>
+              <option value="frontend">Frontend</option>
+              <option value="fullstack">Full Stack</option>
+              <option value="devops">DevOps</option>
+            </select>
+            <div *ngIf="addFormSubmitted && af['domain'].errors" class="invalid-feedback">
+              <div *ngIf="af['domain'].errors?.['required']">Domain is required</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="experience">Experience (years):</label>
+            <input id="experience" type="number" class="form-control" autocomplete="off"
+                   formControlName="experience" placeholder="Years of experience"
+                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['experience'].errors }" />
+            <div *ngIf="addFormSubmitted && af['experience'].errors" class="invalid-feedback">
+              <div *ngIf="af['experience'].errors?.['required']">Experience is required</div>
+              <div *ngIf="af['experience'].errors?.['min']">Must be at least 0 years</div>
+              <div *ngIf="af['experience'].errors?.['max']">Maximum 30 years</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-message" *ngIf="addFormMessage">
+          <p [ngClass]="{ 'text-success': addFormMessageType === 'success', 'text-danger': addFormMessageType === 'error' }">
+            {{ addFormMessage }}
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" (click)="closeAddModal()">Cancel</button>
+          <button class="btn btn-primary" type="submit" [disabled]="isSaving">
+            {{ isSaving ? 'Saving...' : 'Save Employee' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Edit Employee Modal -->
-<div class="modal-overlay" *ngIf="showEditEmployeeModal" (click)="closeEditModal()">
-    <div class="modal-container" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h3>Edit Employee</h3>
-            <button class="close-button" (click)="closeEditModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-        
-        <div class="modal-body">
-            <form [formGroup]="editEmployeeForm" class="employee-form">
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label for="edit-id">Employee ID:</label>
-                        <input type="text" id="edit-id" formControlName="id" class="form-control" 
-                               placeholder="Enter employee ID" [readonly]="true" style="background-color: #f5f5f5;">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-firstname">First Name:</label>
-                        <input type="text" id="edit-firstname" formControlName="firstname" class="form-control" 
-                               placeholder="Enter first name" [ngClass]="{ 'is-invalid': isEditFieldInvalid('firstname') }">
-                        <div *ngIf="isEditFieldInvalid('firstname')" class="invalid-feedback">
-                            <div *ngIf="editEmployeeForm.get('firstname')?.errors?.['required']">First name is required</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-lastname">Last Name:</label>
-                        <input type="text" id="edit-lastname" formControlName="lastname" class="form-control" 
-                               placeholder="Enter last name" [ngClass]="{ 'is-invalid': isEditFieldInvalid('lastname') }">
-                        <div *ngIf="isEditFieldInvalid('lastname')" class="invalid-feedback">
-                            <div *ngIf="editEmployeeForm.get('lastname')?.errors?.['required']">Last name is required</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-email">Email:</label>
-                        <input type="email" id="edit-email" formControlName="email" class="form-control" 
-                               placeholder="Enter email" [readonly]="true" style="background-color: #f5f5f5;">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-password">Password:</label>
-                        <input type="password" id="edit-password" formControlName="password" class="form-control" 
-                               placeholder="Leave blank to keep current password">
-                        <small style="color: #666;">Optional: Only fill if changing password</small>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-dob">Date of Birth:</label>
-                        <input type="date" id="edit-dob" formControlName="dob" class="form-control" 
-                               [ngClass]="{ 'is-invalid': isEditFieldInvalid('dob') }">
-                        <div *ngIf="isEditFieldInvalid('dob')" class="invalid-feedback">
-                            <div *ngIf="editEmployeeForm.get('dob')?.errors?.['required']">Date of birth is required</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-phone">Phone:</label>
-                        <input type="number" id="edit-phone" formControlName="phone" class="form-control" 
-                               placeholder="Enter phone number" [ngClass]="{ 'is-invalid': isEditFieldInvalid('phone') }">
-                        <div *ngIf="isEditFieldInvalid('phone')" class="invalid-feedback">
-                            <div *ngIf="editEmployeeForm.get('phone')?.errors?.['required']">Phone is required</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-domain">Domain:</label>
-                        <select id="edit-domain" formControlName="domain" class="form-control" 
-                                [ngClass]="{ 'is-invalid': isEditFieldInvalid('domain') }">
-                            <option value="">Select domain</option>
-                            <option value="backend">Backend</option>
-                            <option value="frontend">Frontend</option>
-                            <option value="fullstack">Fullstack</option>
-                            <option value="developer">Developer</option>
-                            <option value="devops">DevOps</option>
-                        </select>
-                        <div *ngIf="isEditFieldInvalid('domain')" class="invalid-feedback">
-                            <div *ngIf="editEmployeeForm.get('domain')?.errors?.['required']">Domain is required</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-experience">Experience (years):</label>
-                        <input type="number" id="edit-experience" formControlName="experience" class="form-control" 
-                               placeholder="Years of experience" min="0" max="30"
-                               [ngClass]="{ 'is-invalid': isEditFieldInvalid('experience') }">
-                        <div *ngIf="isEditFieldInvalid('experience')" class="invalid-feedback">
-                            <div *ngIf="editEmployeeForm.get('experience')?.errors?.['required']">Experience is required</div>
-                            <div *ngIf="editEmployeeForm.get('experience')?.errors?.['max']">Maximum 30 years</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-message" *ngIf="editFormMessage">
-                    <p [ngClass]="{'error': editFormMessageType === 'error', 'success': editFormMessageType === 'success'}">
-                        {{editFormMessage}}
-                    </p>
-                </div>
-            </form>
-        </div>
-        
-        <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
-            <button class="btn btn-primary" (click)="updateEmployee()" [disabled]="isUpdating">
-                {{isUpdating ? 'Updating...' : 'Update Employee'}}
-            </button>
-        </div>
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit Employee</h3>
+      <button class="close-button" type="button" (click)="closeEditModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
+
+    <div class="modal-body">
+      <form [formGroup]="editForm" (ngSubmit)="updateEmployee()" class="employee-form">
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="edit-id">Employee ID:</label>
+            <input id="edit-id" type="text" class="form-control readonly-field"
+                   formControlName="id" readonly />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-firstname">First Name:</label>
+            <input id="edit-firstname" type="text" class="form-control" autocomplete="given-name"
+                   formControlName="firstname" placeholder="Enter first name"
+                   [ngClass]="{ 'is-invalid': editFormSubmitted && ef['firstname'].errors }" />
+            <div *ngIf="editFormSubmitted && ef['firstname'].errors" class="invalid-feedback">
+              <div *ngIf="ef['firstname'].errors?.['required']">First name is required</div>
+              <div *ngIf="ef['firstname'].errors?.['minlength']">Minimum {{ ef['firstname'].errors['minlength'].requiredLength }} characters</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-lastname">Last Name:</label>
+            <input id="edit-lastname" type="text" class="form-control" autocomplete="family-name"
+                   formControlName="lastname" placeholder="Enter last name"
+                   [ngClass]="{ 'is-invalid': editFormSubmitted && ef['lastname'].errors }" />
+            <div *ngIf="editFormSubmitted && ef['lastname'].errors" class="invalid-feedback">
+              <div *ngIf="ef['lastname'].errors?.['required']">Last name is required</div>
+              <div *ngIf="ef['lastname'].errors?.['minlength']">Minimum {{ ef['lastname'].errors['minlength'].requiredLength }} characters</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-email">Email:</label>
+            <input id="edit-email" type="email" class="form-control readonly-field"
+                   formControlName="email" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-password">Password: <small class="optional-label">(optional)</small></label>
+            <input id="edit-password" type="password" class="form-control" autocomplete="new-password"
+                   formControlName="password" placeholder="Leave blank to keep current"
+                   [ngClass]="{ 'is-invalid': editFormSubmitted && ef['password'].errors }" />
+            <div *ngIf="editFormSubmitted && ef['password'].errors" class="invalid-feedback">
+              <div *ngIf="ef['password'].errors?.['minlength']">Minimum {{ ef['password'].errors['minlength'].requiredLength }} characters</div>
+              <div *ngIf="ef['password'].errors?.['pattern']">Must contain uppercase, lowercase and a number</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-dob">Date of Birth:</label>
+            <input id="edit-dob" type="date" class="form-control" autocomplete="bday"
+                   formControlName="dob"
+                   [ngClass]="{ 'is-invalid': editFormSubmitted && ef['dob'].errors }" />
+            <div *ngIf="editFormSubmitted && ef['dob'].errors" class="invalid-feedback">
+              <div *ngIf="ef['dob'].errors?.['required']">Date of birth is required</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-phone">Phone:</label>
+            <input id="edit-phone" type="text" class="form-control" autocomplete="tel"
+                   formControlName="phone" placeholder="Enter phone number"
+                   [ngClass]="{ 'is-invalid': editFormSubmitted && ef['phone'].errors }" />
+            <div *ngIf="editFormSubmitted && ef['phone'].errors" class="invalid-feedback">
+              <div *ngIf="ef['phone'].errors?.['required']">Phone is required</div>
+              <div *ngIf="ef['phone'].errors?.['pattern']">Phone must be 10-12 digits only</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-domain">Domain:</label>
+            <select id="edit-domain" class="form-control" formControlName="domain"
+                    [ngClass]="{ 'is-invalid': editFormSubmitted && ef['domain'].errors }">
+              <option value="">Select domain</option>
+              <option value="backend">Backend</option>
+              <option value="frontend">Frontend</option>
+              <option value="fullstack">Full Stack</option>
+              <option value="devops">DevOps</option>
+            </select>
+            <div *ngIf="editFormSubmitted && ef['domain'].errors" class="invalid-feedback">
+              <div *ngIf="ef['domain'].errors?.['required']">Domain is required</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-experience">Experience (years):</label>
+            <input id="edit-experience" type="number" class="form-control" autocomplete="off"
+                   formControlName="experience" placeholder="Years of experience"
+                   [ngClass]="{ 'is-invalid': editFormSubmitted && ef['experience'].errors }" />
+            <div *ngIf="editFormSubmitted && ef['experience'].errors" class="invalid-feedback">
+              <div *ngIf="ef['experience'].errors?.['required']">Experience is required</div>
+              <div *ngIf="ef['experience'].errors?.['min']">Must be at least 0 years</div>
+              <div *ngIf="ef['experience'].errors?.['max']">Maximum 30 years</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-message" *ngIf="editFormMessage">
+          <p [ngClass]="{ 'text-success': editFormMessageType === 'success', 'text-danger': editFormMessageType === 'error' }">
+            {{ editFormMessage }}
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" (click)="closeEditModal()">Cancel</button>
+          <button class="btn btn-primary" type="submit" [disabled]="isUpdating">
+            {{ isUpdating ? 'Updating...' : 'Update Employee' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

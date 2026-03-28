@@ -1,7 +1,12 @@
 export interface EmployeeDto {
-  password: any;
-  email: string;
+  id?: number;
   firstname: string;
   lastname: string;
-  experience: number;
+  email: string;
+  password?: any;
+  dob?: string;
+  phone?: string;
+  domain?: string;
+  experience?: number;
+  status?: string;
 }

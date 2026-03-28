@@ -10,41 +10,40 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./employeeprofile.component.scss']
 })
 export class EmployeeProfileComponent implements OnInit {
-  employee: any;
-  name: string | undefined;
-  message: any;
-  
-  // AG Grid properties
+
+  // Grid
   private gridApi!: GridApi;
-  rowData: any[] = [];
-  
-  // Modal properties
-  showAddEmployeeModal = false;
-  showEditEmployeeModal = false;
-  employeeForm!: FormGroup;
-  editEmployeeForm!: FormGroup;
-  formSubmitted = false;
-  editFormSubmitted = false;
-  formMessage = '';
-  editFormMessage = '';
-  formMessageType: 'success' | 'error' = 'success';
-  editFormMessageType: 'success' | 'error' = 'success';
+  rowData: EmployeeDto[] = [];
+
+  // Modal state
+  showAddModal = false;
+  showEditModal = false;
   isSaving = false;
   isUpdating = false;
-  currentEditingEmployee: any = null;
-  
+
+  // Form state
+  addForm!: FormGroup;
+  editForm!: FormGroup;
+  addFormSubmitted = false;
+  editFormSubmitted = false;
+  addFormMessage = '';
+  editFormMessage = '';
+  addFormMessageType: 'success' | 'error' = 'success';
+  editFormMessageType: 'success' | 'error' = 'success';
+
+  private currentEditingEmployee: EmployeeDto | null = null;
+
   columnDefs: ColDef[] = [
     { field: 'id', headerName: 'Id', width: 80 },
-    { field: 'firstname', headerName: 'FirstName', width: 120 },
-    { field: 'lastname', headerName: 'LastName', width: 120 },
-    { 
-      field: 'dob', 
-      headerName: 'DOB', 
+    { field: 'firstname', headerName: 'First Name', width: 120 },
+    { field: 'lastname', headerName: 'Last Name', width: 120 },
+    {
+      field: 'dob',
+      headerName: 'DOB',
       width: 120,
       valueFormatter: (params) => {
         if (params.value) {
-          const date = new Date(params.value);
-          return date.toLocaleDateString('en-US');
+          return new Date(params.value).toLocaleDateString('en-US');
         }
         return '';
       }
@@ -61,250 +60,218 @@ export class EmployeeProfileComponent implements OnInit {
       cellStyle: { textAlign: 'center' }
     }
   ];
-  
+
   defaultColDef: ColDef = {
     sortable: true,
     filter: true,
     resizable: true
   };
-  
+
   constructor(
     private service: EmployeeProfileService,
     private formBuilder: FormBuilder
   ) { }
-  
-  ngOnInit() {
-    this.employee = this.service.employee;
+
+  ngOnInit(): void {
     this.loadEmployees();
-    this.initializeForm();
+    this.initAddForm();
+    this.initEditForm();
   }
-  
-  initializeForm() {
-    // Add Employee Form
-    this.employeeForm = this.formBuilder.group({
-      id: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(10)]],
+
+  // ── Form Getters ──────────────────────────────────────────
+  get af() { return this.addForm.controls; }
+  get ef() { return this.editForm.controls; }
+
+  // ── Form Init ─────────────────────────────────────────────
+  private initAddForm(): void {
+    this.addForm = this.formBuilder.group({
+      id: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(10)]],
       firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
       dob: ['', Validators.required],
-      phone: ['', Validators.required],
-      domain: ['', Validators.required],
-      experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
-    });
-    
-    // Edit Employee Form - password is optional for updates
-    this.editEmployeeForm = this.formBuilder.group({
-      id: ['', [Validators.required]],
-      firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.minLength(8), Validators.maxLength(100)]], // Optional for edit
-      dob: ['', Validators.required],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
       domain: ['', Validators.required],
       experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
     });
   }
-  
-  onGridReady(params: GridReadyEvent) {
+
+  private initEditForm(): void {
+    this.editForm = this.formBuilder.group({
+      id: [{ value: '', disabled: true }],
+      firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      email: [{ value: '', disabled: true }],
+      password: ['', [Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
+      dob: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
+      domain: ['', Validators.required],
+      experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
+    });
+  }
+
+  // ── Grid ──────────────────────────────────────────────────
+  onGridReady(params: GridReadyEvent): void {
     this.gridApi = params.api;
   }
-  
-  loadEmployees() {
-    this.service.getAllEmployees().subscribe(
-      employees => {
-        this.rowData = employees;
-      }
-    );
+
+  loadEmployees(): void {
+    this.service.getAllEmployees().subscribe({
+      next: (employees) => { this.rowData = employees; },
+      error: (error: Error) => { this.addFormMessage = error.message; }
+    });
   }
-  
-  actionCellRenderer(params: any) {
+
+  actionCellRenderer(params: any): HTMLElement {
     const container = document.createElement('div');
     container.className = 'action-buttons-cell';
-    
-    // Edit button
+
     const editButton = document.createElement('button');
     editButton.className = 'icon-button edit';
+    editButton.style.marginRight = '22px';
+    editButton.title = 'Edit';
     editButton.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-      </svg>
-    `;
-    editButton.title = 'Edit';
+      </svg>`;
     editButton.addEventListener('click', () => this.onEditClick(params.data));
-    
-    // Delete button
+
     const deleteButton = document.createElement('button');
     deleteButton.className = 'icon-button delete';
-    editButton.style.marginRight = '22px';
+    deleteButton.title = 'Delete';
     deleteButton.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 6 5 6 21 6"></polyline>
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         <line x1="10" y1="11" x2="10" y2="17"></line>
         <line x1="14" y1="11" x2="14" y2="17"></line>
-      </svg>
-    `;
-    deleteButton.title = 'Delete';
+      </svg>`;
     deleteButton.addEventListener('click', () => this.onDeleteClick(params.data));
-    
+
     container.appendChild(editButton);
     container.appendChild(deleteButton);
-    
     return container;
   }
-  
-  onEditClick(rowData: any) {
+
+  // ── CRUD Actions ──────────────────────────────────────────
+  onEditClick(rowData: EmployeeDto): void {
     this.currentEditingEmployee = rowData;
-    this.showEditEmployeeModal = true;
+    this.showEditModal = true;
     this.editFormSubmitted = false;
     this.editFormMessage = '';
-    
-    // Pre-fill the form with employee data
-    this.editEmployeeForm.patchValue({
+
+    this.editForm.patchValue({
       id: rowData.id,
       firstname: rowData.firstname,
       lastname: rowData.lastname,
       email: rowData.email,
-      password: '', // Leave password empty
-      dob: rowData.dob ? rowData.dob.split('T')[0] : '', // Format date for input
+      password: '',
+      dob: rowData.dob ? rowData.dob.split('T')[0] : '',
       phone: rowData.phone,
       domain: rowData.domain,
       experience: rowData.experience
     });
   }
-  
-  onDeleteClick(rowData: any) {
+
+  onDeleteClick(rowData: EmployeeDto): void {
     if (confirm(`Are you sure you want to delete ${rowData.firstname} ${rowData.lastname}?`)) {
-      this.service.deleteEmployee(rowData.email).subscribe(() => {
-        this.loadEmployees();
+      this.service.deleteEmployee(rowData.email).subscribe({
+        next: () => this.loadEmployees(),
+        error: (error: Error) => this.addFormMessage = error.message
       });
     }
   }
-  
-  // Modal methods
-  openAddEmployeeModal() {
-    this.showAddEmployeeModal = true;
-    this.formSubmitted = false;
-    this.formMessage = '';
-    this.employeeForm.reset();
+
+  // ── Modal Controls ────────────────────────────────────────
+  openAddModal(): void {
+    this.showAddModal = true;
+    this.addFormSubmitted = false;
+    this.addFormMessage = '';
+    this.initAddForm();
   }
-  
-  closeModal() {
-    this.showAddEmployeeModal = false;
-    this.formSubmitted = false;
-    this.formMessage = '';
-    this.employeeForm.reset();
+
+  closeAddModal(): void {
+    this.showAddModal = false;
+    this.addFormSubmitted = false;
+    this.addFormMessage = '';
+    this.initAddForm();
   }
-  
-  closeEditModal() {
-    this.showEditEmployeeModal = false;
+
+  closeEditModal(): void {
+    this.showEditModal = false;
     this.editFormSubmitted = false;
     this.editFormMessage = '';
-    this.editEmployeeForm.reset();
     this.currentEditingEmployee = null;
+    this.initEditForm();
   }
-  
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.employeeForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched || this.formSubmitted));
-  }
-  
-  isEditFieldInvalid(fieldName: string): boolean {
-    const field = this.editEmployeeForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched || this.editFormSubmitted));
-  }
-  
-  saveEmployee() {
-    this.formSubmitted = true;
-    
-    if (this.employeeForm.invalid) {
-      this.formMessage = 'Please fill all required fields correctly.';
-      this.formMessageType = 'error';
+
+  // ── Save / Update ─────────────────────────────────────────
+  saveEmployee(): void {
+    this.addFormSubmitted = true;
+
+    if (this.addForm.invalid) {
+      this.addFormMessage = 'Please fill all required fields correctly.';
+      this.addFormMessageType = 'error';
       return;
     }
-    
+
     this.isSaving = true;
-    const employeeData: EmployeeDto = this.employeeForm.value;
-    
+    const employeeData: EmployeeDto = this.addForm.value;
+
     this.service.createEmployee(employeeData).subscribe({
       next: () => {
-        this.formMessage = 'Employee added successfully!';
-        this.formMessageType = 'success';
+        this.addFormMessage = 'Employee added successfully!';
+        this.addFormMessageType = 'success';
         this.isSaving = false;
-        
-        // Reload the grid
         this.loadEmployees();
-        
-        // Close modal after a short delay
-        setTimeout(() => {
-          this.closeModal();
-        }, 1500);
+        setTimeout(() => this.closeAddModal(), 1500);
       },
-      error: (error) => {
-        console.error('Error adding employee:', error);
-        this.formMessage = error.error?.message || 'Failed to add employee. Please try again.';
-        this.formMessageType = 'error';
+      error: (error: Error) => {
+        this.addFormMessage = error.message;
+        this.addFormMessageType = 'error';
         this.isSaving = false;
       }
     });
   }
-  
-  updateEmployee() {
+
+  updateEmployee(): void {
     this.editFormSubmitted = true;
-    
-    if (this.editEmployeeForm.invalid) {
+
+    if (this.editForm.invalid) {
       this.editFormMessage = 'Please fill all required fields correctly.';
       this.editFormMessageType = 'error';
       return;
     }
-    
+
     this.isUpdating = true;
-    const employeeData: EmployeeDto = this.editEmployeeForm.value;
-    
-    // If password is empty, don't include it in the update
-    if (!employeeData.password) {
-      // Set the original password or handle it based on your backend logic
-      employeeData.password = this.currentEditingEmployee.password || 'dummy123'; // You may need to adjust this
-    }
-    
+    const employeeData: EmployeeDto = {
+      ...this.editForm.getRawValue()
+    };
+
     this.service.updateEmployee(employeeData).subscribe({
       next: () => {
         this.editFormMessage = 'Employee updated successfully!';
         this.editFormMessageType = 'success';
         this.isUpdating = false;
-        
-        // Reload the grid
         this.loadEmployees();
-        
-        // Close modal after a short delay
-        setTimeout(() => {
-          this.closeEditModal();
-        }, 1500);
+        setTimeout(() => this.closeEditModal(), 1500);
       },
-      error: (error) => {
-        console.error('Error updating employee:', error);
-        this.editFormMessage = error.error?.message || 'Failed to update employee. Please try again.';
+      error: (error: Error) => {
+        this.editFormMessage = error.message;
         this.editFormMessageType = 'error';
         this.isUpdating = false;
       }
     });
   }
-  
-  // Utility methods for the enhanced UI
-  getActiveCount(): number {
-    return Math.floor(this.rowData.length * 0.8);
-  }
-  
+
+  // ── Utility ───────────────────────────────────────────────
   getDepartmentCount(): number {
-    const domains = new Set(this.rowData.map(emp => emp.domain));
-    return domains.size;
+    return new Set(this.rowData.map(emp => emp.domain)).size;
   }
-  
-  exportToExcel() {
-    console.log('Export to Excel');
+
+  exportToExcel(): void {
     this.gridApi.exportDataAsCsv();
   }
 }
