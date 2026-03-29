@@ -78,15 +78,26 @@
       <form [formGroup]="addForm" (ngSubmit)="saveEmployee()" class="employee-form">
         <div class="form-row">
           <div class="form-group full-width">
-            <!-- Create a input box call Employee ID-->
-            <label for="id">Employee ID:</label>
-            <input id="id" type="text" class="form-control" autocomplete="off"
-                   formControlName="id" placeholder="Enter employee ID"
-             />
-            <div *ngIf="addFormSubmitted && af['id'].errors" class="invalid-feedback">
-              <div *ngIf="af['id'].errors?.['required']">Employee ID is required</div>
-              <div *ngIf="af['id'].errors?.['minlength']">Minimum {{ af['id'].errors['minlength'].requiredLength }} characters</div>
-              <div *ngIf="af['id'].errors?.['maxlength']">Maximum {{ af['id'].errors['maxlength'].requiredLength }} characters</div>
+          <!-- Create a input box call Employee ID with class="form-control"-->
+           <!--Using-->
+          <label id="id">Employee Id: </label>
+          <input 
+            id="id" 
+            type="text" 
+            class="form-control" 
+            autocomplete="off" 
+            formControlName="id" 
+            placeholder="Enter Employee id"
+            [class.is-invalid]="isAddInvalid('id')"
+            />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('id')">
+              <span *ngIf="af['id'].errors?.['required']">Employee ID is required</span>
+              <span *ngIf="af['id'].errors?.['minlength']">
+                Minimum {{ af['id'].errors?.['minlength'].requiredLength }} characters
+              </span>
+              <span *ngIf="af['id'].errors?.['maxlength']">
+                Maximum {{ af['id'].errors?.['maxlength'].requiredLength }} characters
+              </span>
             </div>
           </div>
         </div>

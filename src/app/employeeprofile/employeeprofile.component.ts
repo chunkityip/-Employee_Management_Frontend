@@ -24,6 +24,7 @@ export class EmployeeProfileComponent implements OnInit {
   // Form state
   //Create a FromGroup call addForm 
   addForm!: FormGroup;
+
   editForm!: FormGroup;
   addFormSubmitted = false;
   editFormSubmitted = false;
@@ -108,6 +109,12 @@ export class EmployeeProfileComponent implements OnInit {
       domain : ['' , Validators.required],
       experience : ['']
     })
+  }
+
+  //Create a helper function call isAddInvalid
+  isAddInvalid(field: string): boolean {
+    const control = this.addForm.get(field);
+    return !!control?.invalid && (this.addFormSubmitted ||!!control?.touched || !!control?.dirty);
   }
 
   private initEditForm(): void {
