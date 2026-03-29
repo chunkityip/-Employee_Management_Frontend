@@ -76,148 +76,150 @@
 
     <div class="modal-body">
       <form [formGroup]="addForm" (ngSubmit)="saveEmployee()" class="employee-form">
+
+        <!-- Row 1: Employee ID -->
         <div class="form-row">
           <div class="form-group full-width">
-          <!-- Create a input box call Employee ID with class="form-control"-->
-           <!--Using-->
-          <label id="id">Employee Id: </label>
-          <input 
-            id="id" 
-            type="text" 
-            class="form-control" 
-            autocomplete="off" 
-            formControlName="id" 
-            placeholder="Enter Employee id"
-            [class.is-invalid]="isAddInvalid('id')"
-            />
+            <label for="id">Employee Id:</label>
+            <input id="id" type="text" class="form-control" autocomplete="off"
+              formControlName="id" placeholder="Enter Employee id"
+              [class.is-invalid]="isAddInvalid('id')" />
             <div class="invalid-feedback" *ngIf="isAddInvalid('id')">
               <span *ngIf="af['id'].errors?.['required']">Employee ID is required</span>
-              <span *ngIf="af['id'].errors?.['minlength']">
-                Minimum {{ af['id'].errors?.['minlength'].requiredLength }} characters
-              </span>
-              <span *ngIf="af['id'].errors?.['maxlength']">
-                Maximum {{ af['id'].errors?.['maxlength'].requiredLength }} characters
-              </span>
+              <span *ngIf="af['id'].errors?.['minlength']">Minimum {{ af['id'].errors?.['minlength'].requiredLength }} characters</span>
+              <span *ngIf="af['id'].errors?.['maxlength']">Maximum {{ af['id'].errors?.['maxlength'].requiredLength }} characters</span>
             </div>
           </div>
         </div>
 
+        <!-- Row 2: First Name + Last Name -->
         <div class="form-row">
           <div class="form-group">
             <label for="firstname">First Name:</label>
             <input id="firstname" type="text" class="form-control" autocomplete="given-name"
-                   formControlName="firstname" placeholder="Enter first name"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['firstname'].errors }" />
-            <div *ngIf="addFormSubmitted && af['firstname'].errors" class="invalid-feedback">
-              <div *ngIf="af['firstname'].errors?.['required']">First name is required</div>
-              <div *ngIf="af['firstname'].errors?.['minlength']">Minimum {{ af['firstname'].errors['minlength'].requiredLength }} characters</div>
+              formControlName="firstname" placeholder="Enter first name"
+              [class.is-invalid]="isAddInvalid('firstname')" />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('firstname')">
+              <span *ngIf="af['firstname'].errors?.['required']">First Name is required</span>
+              <span *ngIf="af['firstname'].errors?.['minlength']">Minimum {{ af['firstname'].errors?.['minlength'].requiredLength }} characters</span>
+              <span *ngIf="af['firstname'].errors?.['maxlength']">Maximum {{ af['firstname'].errors?.['maxlength'].requiredLength }} characters</span>
             </div>
           </div>
 
           <div class="form-group">
             <label for="lastname">Last Name:</label>
             <input id="lastname" type="text" class="form-control" autocomplete="family-name"
-                   formControlName="lastname" placeholder="Enter last name"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['lastname'].errors }" />
-            <div *ngIf="addFormSubmitted && af['lastname'].errors" class="invalid-feedback">
-              <div *ngIf="af['lastname'].errors?.['required']">Last name is required</div>
-              <div *ngIf="af['lastname'].errors?.['minlength']">Minimum {{ af['lastname'].errors['minlength'].requiredLength }} characters</div>
+              formControlName="lastname" placeholder="Enter last name"
+              [class.is-invalid]="isAddInvalid('lastname')" />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('lastname')">
+              <span *ngIf="af['lastname'].errors?.['required']">Last name is required</span>
+              <span *ngIf="af['lastname'].errors?.['minlength']">Minimum {{ af['lastname'].errors?.['minlength'].requiredLength }} characters</span>
             </div>
           </div>
         </div>
 
+        <!-- Row 3: Email + Password -->
         <div class="form-row">
           <div class="form-group">
             <label for="email">Email:</label>
             <input id="email" type="email" class="form-control" autocomplete="email"
-                   formControlName="email" placeholder="Enter email"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['email'].errors }" />
-            <div *ngIf="addFormSubmitted && af['email'].errors" class="invalid-feedback">
-              <div *ngIf="af['email'].errors?.['required']">Email is required</div>
-              <div *ngIf="af['email'].errors?.['email']">Invalid email format</div>
+              formControlName="email" placeholder="Enter email"
+              [class.is-invalid]="isAddInvalid('email')" 
+            />
+            <!-- Loading while API checks -->
+            <small *ngIf="af['email'].pending" class="text-muted">
+              Checking email...
+            </small>
+
+            <div class="invalid-feedback" *ngIf="isAddInvalid('email')">
+              <span *ngIf="af['email'].errors?.['required']">Email is required</span>
+              <span *ngIf="af['email'].errors?.['email']">Invalid email format: Must have '@' on it</span>
+              <span *ngIf="af['email'].errors?.['emailTaken']">Email already exists</span>
             </div>
           </div>
 
           <div class="form-group">
             <label for="password">Password:</label>
             <input id="password" type="password" class="form-control" autocomplete="new-password"
-                   formControlName="password" placeholder="Enter password"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['password'].errors }" />
-            <div *ngIf="addFormSubmitted && af['password'].errors" class="invalid-feedback">
-              <div *ngIf="af['password'].errors?.['required']">Password is required</div>
-              <div *ngIf="af['password'].errors?.['minlength']">Minimum {{ af['password'].errors['minlength'].requiredLength }} characters</div>
-              <div *ngIf="af['password'].errors?.['pattern']">Must contain uppercase, lowercase and a number</div>
+              formControlName="password" placeholder="Enter password"
+              [class.is-invalid]="isAddInvalid('password')" />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('password')">
+              <span *ngIf="af['password'].errors?.['required']">Password is required</span>
+              <span *ngIf="af['password'].errors?.['minlength']">Minimum {{ af['password'].errors?.['minlength'].requiredLength }} characters</span>
+              <span *ngIf="af['password'].errors?.['pattern']">Must contain uppercase, lowercase and a number</span>
             </div>
           </div>
         </div>
 
+        <!-- Row 4: DOB + Phone -->
         <div class="form-row">
           <div class="form-group">
             <label for="dob">Date of Birth:</label>
             <input id="dob" type="date" class="form-control" autocomplete="bday"
-                   formControlName="dob"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['dob'].errors }" />
-            <div *ngIf="addFormSubmitted && af['dob'].errors" class="invalid-feedback">
-              <div *ngIf="af['dob'].errors?.['required']">Date of birth is required</div>
+              formControlName="dob"
+              [class.is-invalid]="isAddInvalid('dob')" />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('dob')">
+              <span *ngIf="af['dob'].errors?.['required']">Date of birth is required</span>
             </div>
           </div>
 
           <div class="form-group">
             <label for="phone">Phone:</label>
             <input id="phone" type="text" class="form-control" autocomplete="tel"
-                   formControlName="phone" placeholder="Enter phone number"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['phone'].errors }" />
-            <div *ngIf="addFormSubmitted && af['phone'].errors" class="invalid-feedback">
-              <div *ngIf="af['phone'].errors?.['required']">Phone is required</div>
-              <div *ngIf="af['phone'].errors?.['pattern']">Phone must be 10-12 digits only</div>
+              formControlName="phone" placeholder="Enter phone number"
+              [class.is-invalid]="isAddInvalid('phone')" />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('phone')">
+              <span *ngIf="af['phone'].errors?.['required']">Phone is required</span>
+              <span *ngIf="af['phone'].errors?.['pattern']">Phone must be 10-12 digits only</span>
             </div>
           </div>
         </div>
 
+        <!-- Row 5: Domain + Experience -->
         <div class="form-row">
           <div class="form-group">
             <label for="domain">Domain:</label>
             <select id="domain" class="form-control" formControlName="domain"
-                    [ngClass]="{ 'is-invalid': addFormSubmitted && af['domain'].errors }">
+              [class.is-invalid]="isAddInvalid('domain')">
               <option value="">Select domain</option>
               <option value="backend">Backend</option>
               <option value="frontend">Frontend</option>
               <option value="fullstack">Full Stack</option>
               <option value="devops">DevOps</option>
             </select>
-            <div *ngIf="addFormSubmitted && af['domain'].errors" class="invalid-feedback">
-              <div *ngIf="af['domain'].errors?.['required']">Domain is required</div>
+            <div class="invalid-feedback" *ngIf="isAddInvalid('domain')">
+              <span *ngIf="af['domain'].errors?.['required']">Domain is required</span>
             </div>
           </div>
 
           <div class="form-group">
             <label for="experience">Experience (years):</label>
             <input id="experience" type="number" class="form-control" autocomplete="off"
-                   formControlName="experience" placeholder="Years of experience"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['experience'].errors }" />
-            <div *ngIf="addFormSubmitted && af['experience'].errors" class="invalid-feedback">
-              <div *ngIf="af['experience'].errors?.['required']">Experience is required</div>
-              <div *ngIf="af['experience'].errors?.['min']">Must be at least 0 years</div>
-              <div *ngIf="af['experience'].errors?.['max']">Maximum 30 years</div>
+              formControlName="experience" placeholder="Years of experience"
+              [class.is-invalid]="isAddInvalid('experience')" />
+            <div class="invalid-feedback" *ngIf="isAddInvalid('experience')">
+              <span *ngIf="af['experience'].errors?.['required']">Experience is required</span>
+              <span *ngIf="af['experience'].errors?.['min']">Must be at least 0 years</span>
+              <span *ngIf="af['experience'].errors?.['max']">Maximum 30 years</span>
             </div>
           </div>
         </div>
 
+        <!-- Message -->
         <div class="form-message" *ngIf="addFormMessage">
           <p [ngClass]="{ 'text-success': addFormMessageType === 'success', 'text-danger': addFormMessageType === 'error' }">
             {{ addFormMessage }}
           </p>
         </div>
 
+        <!-- Footer -->
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" (click)="closeAddModal()">Cancel</button>
           <button class="btn btn-primary" type="submit" [disabled]="isSaving">
             {{ isSaving ? 'Saving...' : 'Save Employee' }}
           </button>
         </div>
-      </form>
-    </div>
-  </div>
+  </form>
 </div>
 
 <!-- Edit Employee Modal -->

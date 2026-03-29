@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { EmployeeDto } from '../types/employee-dto';
 import { EmployeeProfileService } from '../service/employee-profile.service';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators, ValidationErrors, AsyncValidatorFn } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { map, catchError, debounceTime, switchMap, first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-employee-profile',
@@ -81,9 +83,9 @@ export class EmployeeProfileComponent implements OnInit {
     this.initEditForm();
   }
 
-  // ── Form Getters ──────────────────────────────────────────
-  get af() { return this.addForm.controls; }
-  get ef() { return this.editForm.controls; }
+  // ── Form Getters or reading validation errors ──────────────────────────────────────────
+  get af(): {[key : string]: AbstractControl} { return this.addForm.controls; }
+  get ef(): {[key : string]: AbstractControl} { return this.editForm.controls; }
 
   // ── Form Init ─────────────────────────────────────────────
   /**Create initAddForm() 
@@ -100,9 +102,9 @@ export class EmployeeProfileComponent implements OnInit {
   private initAddForm() : void {
     this.addForm = this.formBuilder.group({
       id : ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(10)]],
-      firstname : ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(10)]],
-      lastname: ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(10)]],
-      email: ['' , [Validators.required , Validators.email]],
+      firstname : ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(20)]],
+      lastname: ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(20)]],
+      email: ['' , [Validators.required , Validators.email], [this.emailExistsValidator()]],
       password: ['' , [Validators.required , Validators.minLength(8)]], // or Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
       dob: ['' , Validators.required],
       phone: ['' , [Validators.required , Validators.minLength(10)]],
@@ -115,6 +117,25 @@ export class EmployeeProfileComponent implements OnInit {
   isAddInvalid(field: string): boolean {
     const control = this.addForm.get(field);
     return !!control?.invalid && (this.addFormSubmitted ||!!control?.touched || !!control?.dirty);
+  }
+
+  private emailExistsValidator(): AsyncValidatorFn {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!control.value) {
+        return of(null); // let required handle empty
+      }
+
+      return of(control.value).pipe(
+        debounceTime(500),           // wait 500ms after user stops typing
+        switchMap(email =>
+          this.service.existsByEmail(email).pipe(
+            map(exists => exists ? { emailTaken: true } : null),
+            catchError(() => of(null))
+          )
+        ),
+        first()                      // complete the observable
+      );
+    };
   }
 
   private initEditForm(): void {
