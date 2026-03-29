@@ -78,10 +78,11 @@
       <form [formGroup]="addForm" (ngSubmit)="saveEmployee()" class="employee-form">
         <div class="form-row">
           <div class="form-group full-width">
+            <!-- Create a input box call Employee ID-->
             <label for="id">Employee ID:</label>
             <input id="id" type="text" class="form-control" autocomplete="off"
                    formControlName="id" placeholder="Enter employee ID"
-                   [ngClass]="{ 'is-invalid': addFormSubmitted && af['id'].errors }" />
+             />
             <div *ngIf="addFormSubmitted && af['id'].errors" class="invalid-feedback">
               <div *ngIf="af['id'].errors?.['required']">Employee ID is required</div>
               <div *ngIf="af['id'].errors?.['minlength']">Minimum {{ af['id'].errors['minlength'].requiredLength }} characters</div>

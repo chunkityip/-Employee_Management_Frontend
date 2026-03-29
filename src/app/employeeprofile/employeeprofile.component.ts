@@ -22,6 +22,7 @@ export class EmployeeProfileComponent implements OnInit {
   isUpdating = false;
 
   // Form state
+  //Create a FromGroup call addForm 
   addForm!: FormGroup;
   editForm!: FormGroup;
   addFormSubmitted = false;
@@ -74,6 +75,7 @@ export class EmployeeProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEmployees();
+    //init initAddForm() to here
     this.initAddForm();
     this.initEditForm();
   }
@@ -83,18 +85,29 @@ export class EmployeeProfileComponent implements OnInit {
   get ef() { return this.editForm.controls; }
 
   // ── Form Init ─────────────────────────────────────────────
-  private initAddForm(): void {
+  /**Create initAddForm() 
+   * id as required , min 1 length , and 10 max
+   * firstname as required , min 3 length , and 1000 max
+   * lastname as required , min 3 length , and 1000 max
+   * email as required and must be email formatter
+   * password as required , min 8 length , one uppercase , one lowercase
+   * dob as required
+   * phone as required that min 10 , max 12
+   * domain as required
+   * experience
+   **/
+  private initAddForm() : void {
     this.addForm = this.formBuilder.group({
-      id: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(10)]],
-      firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
-      dob: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
-      domain: ['', Validators.required],
-      experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
-    });
+      id : ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(10)]],
+      firstname : ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(10)]],
+      lastname: ['' , [Validators.required , Validators.minLength(1) , Validators.maxLength(10)]],
+      email: ['' , [Validators.required , Validators.email]],
+      password: ['' , [Validators.required , Validators.minLength(8)]], // or Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
+      dob: ['' , Validators.required],
+      phone: ['' , [Validators.required , Validators.minLength(10)]],
+      domain : ['' , Validators.required],
+      experience : ['']
+    })
   }
 
   private initEditForm(): void {
@@ -274,4 +287,5 @@ export class EmployeeProfileComponent implements OnInit {
   exportToExcel(): void {
     this.gridApi.exportDataAsCsv();
   }
+
 }
