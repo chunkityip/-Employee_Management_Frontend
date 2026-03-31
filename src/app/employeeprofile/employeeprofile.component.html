@@ -80,10 +80,17 @@
         <!-- Row 1: Employee ID -->
         <div class="form-row">
           <div class="form-group full-width">
+            <!--Create a label call Employee Id-->
             <label for="id">Employee Id:</label>
-            <input id="id" type="text" class="form-control" autocomplete="off"
-              formControlName="id" placeholder="Enter Employee id"
-              [class.is-invalid]="isAddInvalid('id')" />
+            <input 
+              id="id"
+              type="text"
+              class="form-control"
+              placeholder="Enter Employee Id"
+              autocomplete="off"
+              formControlName="id"
+              [class.is-invalid]="isAddInvalid('id')"
+            />
             <div class="invalid-feedback" *ngIf="isAddInvalid('id')">
               <span *ngIf="af['id'].errors?.['required']">Employee ID is required</span>
               <span *ngIf="af['id'].errors?.['minlength']">Minimum {{ af['id'].errors?.['minlength'].requiredLength }} characters</span>
@@ -219,8 +226,11 @@
             {{ isSaving ? 'Saving...' : 'Save Employee' }}
           </button>
         </div>
-  </form>
-</div>
+
+      </form>
+    </div>       <!-- closes modal-body -->
+  </div>         <!-- closes modal-container -->
+</div>           <!-- closes modal-overlay -->
 
 <!-- Edit Employee Modal -->
 <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">

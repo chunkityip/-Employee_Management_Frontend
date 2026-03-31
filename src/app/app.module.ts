@@ -13,9 +13,10 @@ import { UpdateComponent } from './update/update.component';
 import { HeaderComponent } from './header/header.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HrRegistrationComponent } from './hr-registration/hr-registration.component';
 import { AgGridModule } from 'ag-grid-angular';
+import { HttpConfigInterceptor } from './interceptor/http.interceptor';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,13 @@ import { AgGridModule } from 'ag-grid-angular';
     HttpClientModule,  
     AgGridModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpConfigInterceptor,
+      multi: true  // ← allows multiple interceptors
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

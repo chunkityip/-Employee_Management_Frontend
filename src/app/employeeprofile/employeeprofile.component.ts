@@ -28,8 +28,8 @@ export class EmployeeProfileComponent implements OnInit {
   addForm!: FormGroup;
 
   editForm!: FormGroup;
-  addFormSubmitted = false;
-  editFormSubmitted = false;
+  addFormSubmitted = false; // to check is user click the save button in add popup
+  editFormSubmitted = false; // to check is user click the save button in edit popup
   addFormMessage = '';
   editFormMessage = '';
   addFormMessageType: 'success' | 'error' = 'success';
@@ -114,12 +114,13 @@ export class EmployeeProfileComponent implements OnInit {
   }
 
   //Create a helper function call isAddInvalid
+  // this function will check addFormSubmitted and touched and dirty and invalid
   isAddInvalid(field: string): boolean {
     const control = this.addForm.get(field);
-    return !!control?.invalid && (this.addFormSubmitted ||!!control?.touched || !!control?.dirty);
+    return !!control?.invalid && (this.addFormSubmitted || !!control?.touched || !!control?.dirty);
   }
 
-  private emailExistsValidator(): AsyncValidatorFn {
+  emailExistsValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
       if (!control.value) {
         return of(null); // let required handle empty
