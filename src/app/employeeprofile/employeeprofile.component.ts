@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { EmployeeDto } from '../types/employee-dto';
 import { EmployeeProfileService } from '../service/employee-profile.service';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AbstractControl, FormBuilder, FormGroup, Validators, ValidationErrors, AsyncValidatorFn } from '@angular/forms';
-import { Observable, of } from 'rxjs';
-import { map, catchError, debounceTime, switchMap, first } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { map, catchError, debounceTime, switchMap, first, takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-employee-profile',
   templateUrl: './employeeprofile.component.html',
   styleUrls: ['./employeeprofile.component.scss']
 })
-export class EmployeeProfileComponent implements OnInit {
+export class EmployeeProfileComponent implements OnInit, OnDestroy {
+  // Lifecycle / cleanup
+  private destroy$ = new Subject<void>();
 
   // Grid
   private gridApi!: GridApi;
@@ -20,13 +22,12 @@ export class EmployeeProfileComponent implements OnInit {
   // Modal state
   showAddModal = false;
   showEditModal = false;
-  isSaving = false;
-  isUpdating = false;
+  isSaving = false; // to check is saved in event handler and action function
+  isUpdating = false; // to check is update in event handler and action function
 
   // Form state
   //Create a FromGroup call addForm 
   addForm!: FormGroup;
-
   editForm!: FormGroup;
   addFormSubmitted = false; // to check is user click the save button in add popup
   editFormSubmitted = false; // to check is user click the save button in edit popup
@@ -81,6 +82,11 @@ export class EmployeeProfileComponent implements OnInit {
     //init initAddForm() to here
     this.initAddForm();
     this.initEditForm();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── Form Getters or reading validation errors ──────────────────────────────────────────
@@ -254,28 +260,29 @@ export class EmployeeProfileComponent implements OnInit {
     this.addFormSubmitted = true;
 
     if (this.addForm.invalid) {
-      this.addFormMessage = 'Please fill all required fields correctly.';
-      this.addFormMessageType = 'error';
       return;
     }
 
     this.isSaving = true;
     const employeeData: EmployeeDto = this.addForm.value;
 
-    this.service.createEmployee(employeeData).subscribe({
-      next: () => {
-        this.addFormMessage = 'Employee added successfully!';
-        this.addFormMessageType = 'success';
-        this.isSaving = false;
-        this.loadEmployees();
-        setTimeout(() => this.closeAddModal(), 1500);
-      },
-      error: (error: Error) => {
-        this.addFormMessage = error.message;
-        this.addFormMessageType = 'error';
-        this.isSaving = false;
-      }
-    });
+    this.service.createEmployee(employeeData)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isSaving = false)
+      )
+      .subscribe({
+        next: () => {
+          this.addFormMessage = 'Employee added successfully!';
+          this.addFormMessageType = 'success';
+          this.loadEmployees();
+          setTimeout(() => this.closeAddModal(), 1500);
+        },
+        error: (error: Error) => {
+          this.addFormMessage = error.message;
+          this.addFormMessageType = 'error';
+        }
+      });
   }
 
   updateEmployee(): void {
