@@ -4,7 +4,8 @@ import { EmployeeProfileService } from '../service/employee-profile.service';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { AbstractControl, FormBuilder, FormGroup, Validators, ValidationErrors, AsyncValidatorFn } from '@angular/forms';
 import { Observable, of, Subject } from 'rxjs';
-import { map, catchError, debounceTime, switchMap, first, takeUntil, finalize } from 'rxjs/operators';
+import { map, catchError, debounceTime, switchMap, first, takeUntil, finalize, take } from 'rxjs/operators';
+import { error } from 'console';
 
 @Component({
   selector: 'app-employee-profile',
@@ -28,6 +29,10 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
   // Form state
   //Create a FromGroup call addForm 
   addForm!: FormGroup;
+
+
+
+  
   editForm!: FormGroup;
   addFormSubmitted = false; // to check is user click the save button in add popup
   editFormSubmitted = false; // to check is user click the save button in edit popup
@@ -80,7 +85,7 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadEmployees();
     //init initAddForm() to here
-    this.initAddForm();
+    this.initAddForm()
     this.initEditForm();
   }
 
@@ -126,6 +131,11 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
     return !!control?.invalid && (this.addFormSubmitted || !!control?.touched || !!control?.dirty);
   }
 
+  isUpdateInvalid(field: string): boolean {
+    const control = this.editForm.get(field);
+    return !!control?.invalid && (this.editFormSubmitted || !!control?.touched || !!control?.dirty);
+  }
+
   emailExistsValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
       if (!control.value) {
@@ -150,10 +160,10 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
       id: [{ value: '', disabled: true }],
       firstname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       lastname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      email: [{ value: '', disabled: true }],
-      password: ['', [Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
+      email: [{ value: '' }],
+      password: [''],
       dob: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
+      phone: ['' , [Validators.required , Validators.minLength(10)]],
       domain: ['', Validators.required],
       experience: ['', [Validators.required, Validators.min(0), Validators.max(30)]]
     });
@@ -258,10 +268,7 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
   // ── Save / Update ─────────────────────────────────────────
   saveEmployee(): void {
     this.addFormSubmitted = true;
-
-    if (this.addForm.invalid) {
-      return;
-    }
+    if (this.addForm.invalid) return;
 
     this.isSaving = true;
     const employeeData: EmployeeDto = this.addForm.value;
@@ -288,31 +295,29 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
   updateEmployee(): void {
     this.editFormSubmitted = true;
 
-    if (this.editForm.invalid) {
-      this.editFormMessage = 'Please fill all required fields correctly.';
-      this.editFormMessageType = 'error';
-      return;
-    }
+    if (this.editForm.invalid) return;
 
     this.isUpdating = true;
-    const employeeData: EmployeeDto = {
-      ...this.editForm.getRawValue()
-    };
+    const employeeData : EmployeeDto = this.editForm.value;
 
-    this.service.updateEmployee(employeeData).subscribe({
-      next: () => {
-        this.editFormMessage = 'Employee updated successfully!';
-        this.editFormMessageType = 'success';
-        this.isUpdating = false;
-        this.loadEmployees();
-        setTimeout(() => this.closeEditModal(), 1500);
-      },
-      error: (error: Error) => {
-        this.editFormMessage = error.message;
-        this.editFormMessageType = 'error';
-        this.isUpdating = false;
-      }
-    });
+    this.service.updateEmployee(employeeData)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isUpdating = false)
+      )
+      .subscribe({
+        next: () => {
+          this.editFormMessage = 'Employee updated successfully!';
+          this.editFormMessageType = 'success';
+          this.loadEmployees();
+          setTimeout(() => this.closeEditModal(), 1500);
+        },
+        error: (error : Error) => {
+          this.editFormMessage = error.message;
+          this.editFormMessageType = 'error';
+        }
+      })
+
   }
 
   // ── Utility ───────────────────────────────────────────────

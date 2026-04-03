@@ -431,6 +431,12 @@ select.form-control {
     gap: 12px;
 }
 
+.readonly-label {
+    background-color: lightgray;
+    cursor: not-allowed;
+    color: #6c757d; 
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .welcome-text h1 {
