@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { EmployeeDto } from '../types/employee-dto';
+import { EmployeeDto, DomainDto } from '../types/employee-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -44,5 +44,9 @@ export class EmployeeProfileService {
 
   public getAllEmployees(): Observable<EmployeeDto[]> {
     return this.http.get<EmployeeDto[]>(`${this.baseUrl}/getAllEmployees`);
+  }
+
+  public getAllDomains(): Observable<DomainDto[]> {
+    return this.http.get<DomainDto[]>(`${this.baseUrl}/domains`);
   }
 }

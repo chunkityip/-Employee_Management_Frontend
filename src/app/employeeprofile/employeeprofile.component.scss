@@ -187,7 +187,7 @@
     font-family: inherit;
 }
 
-.ag-theme-alpine-dark {
+.ag-theme-alpine {
     --ag-background-color: #ffffff;
     --ag-header-background-color: #f7fafc;
     --ag-header-foreground-color: #2d3748;
@@ -195,18 +195,18 @@
     --ag-row-hover-color: #f7fafc;
 }
 
-.ag-theme-alpine-dark .ag-header-cell {
+.ag-theme-alpine .ag-header-cell {
     font-weight: 600;
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.ag-theme-alpine-dark .ag-row {
+.ag-theme-alpine .ag-row {
     border-bottom: 1px solid #f1f5f9;
 }
 
-.ag-theme-alpine-dark .ag-row:hover {
+.ag-theme-alpine .ag-row:hover {
     background-color: #f8fafc;
 }
 
@@ -555,7 +555,7 @@ select.form-control {
     font-family: inherit;
 }
 
-.ag-theme-alpine-dark {
+.ag-theme-alpine {
     --ag-background-color: #ffffff;
     --ag-header-background-color: #f7fafc;
     --ag-header-foreground-color: #2d3748;
@@ -563,18 +563,18 @@ select.form-control {
     --ag-row-hover-color: #f7fafc;
 }
 
-.ag-theme-alpine-dark .ag-header-cell {
+.ag-theme-alpine .ag-header-cell {
     font-weight: 600;
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.ag-theme-alpine-dark .ag-row {
+.ag-theme-alpine .ag-row {
     border-bottom: 1px solid #f1f5f9;
 }
 
-.ag-theme-alpine-dark .ag-row:hover {
+.ag-theme-alpine .ag-row:hover {
     background-color: #f8fafc;
 }
 

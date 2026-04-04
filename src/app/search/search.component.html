@@ -1,1 +1,13 @@
-<p>search works!</p>
+<div class="employee-searchapge-container">
+    <div class="grid-wrapper">
+        <ag-grid-angular
+            style="width: 100%; height: 600px;"
+            class="ag-theme-alpine custom-grid"
+            [rowData]="rowData"
+            [columnDefs]="columnDef"
+            [defaultColDef]="defaultColDef"
+            (gridReady)="onGridReady"
+        >
+    </ag-grid-angular>
+    </div>
+</div>

@@ -10,3 +10,8 @@ export interface EmployeeDto {
   experience?: number;
   status?: string;
 }
+
+export interface DomainDto {
+  id: number;
+  name: string;
+}

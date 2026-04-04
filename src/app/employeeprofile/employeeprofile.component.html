@@ -43,6 +43,7 @@
       </div>
     </div>
 
+    <!--Create a ag grid to match the data from API-->
     <div class="grid-wrapper">
       <ag-grid-angular
         style="width: 100%; height: 600px;"
@@ -51,7 +52,6 @@
         [columnDefs]="columnDefs"
         [defaultColDef]="defaultColDef"
         (gridReady)="onGridReady($event)"
-        [animateRows]="true"
         [pagination]="true"
         [paginationPageSize]="10"
         [rowHeight]="60"

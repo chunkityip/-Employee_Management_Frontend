@@ -23,26 +23,32 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
   // Modal state
   showAddModal = false;
   showEditModal = false;
+  isLoading = false;
   isSaving = false; // to check is saved in event handler and action function
   isUpdating = false; // to check is update in event handler and action function
+  isDeleting = false; 
 
   // Form state
   //Create a FromGroup call addForm 
   addForm!: FormGroup;
-
-
-
-  
   editForm!: FormGroup;
   addFormSubmitted = false; // to check is user click the save button in add popup
   editFormSubmitted = false; // to check is user click the save button in edit popup
   addFormMessage = '';
   editFormMessage = '';
+  loadFormMessage = '';
+  deleteMessage = '';
   addFormMessageType: 'success' | 'error' = 'success';
   editFormMessageType: 'success' | 'error' = 'success';
+  loadFormMessageType: 'success' | 'error' = 'success';
+  deleteFormMessageType: 'success' | 'error' = 'success';
 
   private currentEditingEmployee: EmployeeDto | null = null;
 
+  /**
+   * Create a columnd for ag grid call columnDefs 
+   * it has id , firstname , lastname , dob , phone , email , experience and domain
+   */
   columnDefs: ColDef[] = [
     { field: 'id', headerName: 'Id', width: 80 },
     { field: 'firstname', headerName: 'First Name', width: 120 },
@@ -63,7 +69,7 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
     { field: 'experience', headerName: 'Experience', width: 100 },
     { field: 'domain', headerName: 'Domain', width: 120 },
     {
-      field: 'action',
+      colId: 'action',
       headerName: 'Actions',
       width: 120,
       cellRenderer: this.actionCellRenderer.bind(this),
@@ -71,6 +77,10 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
     }
   ];
 
+  /**
+   * Create a default for ColDef for aboive:
+   * Suppoerrt sort , filter and can resize to follow DRY
+   */
   defaultColDef: ColDef = {
     sortable: true,
     filter: true,
@@ -174,11 +184,23 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
     this.gridApi = params.api;
   }
 
+  //Create function to add data from ap
+
+
+
+
+
   loadEmployees(): void {
-    this.service.getAllEmployees().subscribe({
-      next: (employees) => { this.rowData = employees; },
-      error: (error: Error) => { this.addFormMessage = error.message; }
-    });
+    this.isLoading = true;
+    this.service.getAllEmployees()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (employeesData) => { this.rowData = employeesData; },
+        error: (error: Error) => { this.loadFormMessage = error.message; }
+      });
   }
 
   actionCellRenderer(params: any): HTMLElement {
@@ -235,10 +257,21 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
 
   onDeleteClick(rowData: EmployeeDto): void {
     if (confirm(`Are you sure you want to delete ${rowData.firstname} ${rowData.lastname}?`)) {
-      this.service.deleteEmployee(rowData.email).subscribe({
-        next: () => this.loadEmployees(),
-        error: (error: Error) => this.addFormMessage = error.message
-      });
+      this.isDeleting = true;
+      this.service.deleteEmployee(rowData.email)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isDeleting = false)
+        )
+        .subscribe({
+          next: () => {
+            this.loadEmployees()
+          },
+          error: (error : Error) => {
+            this.deleteMessage = error.message;
+            this.deleteFormMessageType = 'error'
+          }
+        })
     }
   }
 
