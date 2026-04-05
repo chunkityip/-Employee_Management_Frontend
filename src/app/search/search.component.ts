@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
-import { EmployeeDto } from '../types/employee-dto';
+import { EmployeeDto, DomainDto } from '../types/employee-dto';
 import { EmployeeProfileService } from '../service/employee-profile.service';
 
 @Component({
@@ -11,55 +11,49 @@ import { EmployeeProfileService } from '../service/employee-profile.service';
 })
 export class SearchComponent implements OnInit, OnDestroy {
 
+  // Lifecycle / cleanup
   private destroy$ = new Subject<void>();
+
+  // Grid
   private gridApi!: GridApi;
   rowData: EmployeeDto[] = [];
 
-  /**
-   * Create a column for ag grid call columnDefs 
-   * it has id , firstname , lastname , dob , phone , email , experience and domain
-   */
-  columnDef: ColDef[] = [
-    { field: 'id', headerName: 'Id' , width: 80},
-    { field: 'firstname', headerName: 'First Name', width: 150},
-    { field: 'lastname', headerName: 'Last Name', width: 150},
-    { field: 'dob', headerName: 'Day of Birth', width: 150},
-    { field: 'phone', headerName: 'Phone', width: 200},
-    { field: 'email', headerName: 'Email', width: 200},
-    { field: 'experience', headerName: 'Experience', width: 170}
-  ]
-  
+  columnDefs: ColDef[] = [
+    { field: 'id', headerName: 'Id', width: 80 },
+    { field: 'firstname', headerName: 'First Name', width: 150 },
+    { field: 'lastname', headerName: 'Last Name', width: 150 },
+    { field: 'dob', headerName: 'Day of Birth', width: 150 },
+    { field: 'phone', headerName: 'Phone', width: 200 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'experience', headerName: 'Experience', width: 170 }
+  ];
 
-  /**
-   * Create a default for ColDef for aboive:
-   * Suppoerrt sort , filter and can resize to follow DRY
-   */
-  defaultColDef : ColDef = {
+  defaultColDef: ColDef = {
     sortable: true,
     filter: true,
     resizable: true
-  }
+  };
 
-  constructor(
-    private service: EmployeeProfileService
-  ) { }
+  // Dropdown
+  dropdownData: DomainDto[] = [];
+  selectedDomain: DomainDto | null = null;
 
-
-
-  /**
-   * We need isGridLoading , isDropdownLoading
-   * We need loadingEmployee after click the search button
-   * We need initGird
-   * findByEmail , findByExperience
-   */
+  // Loading flags
   isGridLoading = false;
   isDropdownLoading = false;
-  isLoading = false;
+
+  // Messages
   loadGridMessage = '';
   loadGridMessageType: 'success' | 'error' = 'success';
+  loadDropdownMessage = '';
+  loadDropdownMessageType: 'success' | 'error' = 'success';
 
+  constructor(private service: EmployeeProfileService) { }
+
+  // Lifecycle hooks
   ngOnInit(): void {
-    this.loadEmployee();
+    this.loadEmployees();
+    this.loadDomains();
   }
 
   ngOnDestroy(): void {
@@ -67,28 +61,65 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // Grid
   onGridReady(params: GridReadyEvent): void {
-      this.gridApi = params.api;
-    }
+    this.gridApi = params.api;
+  }
 
-  loadEmployee(): void {
-    this.isLoading = true;
+  // Load employees (grid data)
+  loadEmployees(): void {
+    this.isGridLoading = true;
     this.service.getAllEmployees()
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.isLoading = false)
+        finalize(() => this.isGridLoading = false)
       )
       .subscribe({
-        next: (employeeData) => {this.rowData = employeeData;},
-        error: (error: Error) => {                              
+        next: (employees) => { this.rowData = employees; },
+        error: (error: Error) => {
           this.loadGridMessage = error.message;
           this.loadGridMessageType = 'error';
         }
       });
   }
 
-  // searchByEmail() : void {
-  //   this.
-  // }
+  // Load domains (dropdown data)
+  loadDomains(): void {
+    if (this.dropdownData.length > 0) return;  // already loaded, skip
 
+    this.isDropdownLoading = true;
+    this.service.getAllDomains()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isDropdownLoading = false)
+      )
+      .subscribe({
+        next: (domains) => { this.dropdownData = domains; },
+        error: (error: Error) => {
+          this.loadDropdownMessage = error.message;
+          this.loadDropdownMessageType = 'error';
+        }
+      });
+  }
+
+  // Search when user selects a domain
+  onDomainChange(): void {
+    if (this.selectedDomain) {
+      this.isGridLoading = true;
+      this.service.findByDomain(this.selectedDomain.name)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isGridLoading = false)
+        )
+        .subscribe({
+          next: (employees) => { this.rowData = employees; },
+          error: (error: Error) => {
+            this.loadGridMessage = error.message;
+            this.loadGridMessageType = 'error';
+          }
+        });
+    } else {
+      this.loadEmployees();
+    }
+  }
 }

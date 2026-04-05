@@ -49,4 +49,8 @@ export class EmployeeProfileService {
   public getAllDomains(): Observable<DomainDto[]> {
     return this.http.get<DomainDto[]>(`${this.baseUrl}/domains`);
   }
+
+  public findByDomain(domain: string): Observable<EmployeeDto[]> {
+    return this.http.get<EmployeeDto[]>(`${this.baseUrl}/search/domain/${domain}`);
+  }
 }

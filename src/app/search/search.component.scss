@@ -1,4 +1,25 @@
 /* Grid Wrapper */
+.employee-search-container {
+  padding: 20px;
+}
+
+.search-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 16px;
+
+  &.error { background: #fdecea; color: #c62828; }
+  &.success { background: #e8f5e9; color: #2e7d32; }
+}
+
 .grid-wrapper {
     background: white;
     border-radius: 12px;

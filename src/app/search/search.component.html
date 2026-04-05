@@ -1,13 +1,55 @@
-<div class="employee-searchapge-container">
-    <div class="grid-wrapper">
-        <ag-grid-angular
-            style="width: 100%; height: 600px;"
-            class="ag-theme-alpine custom-grid"
-            [rowData]="rowData"
-            [columnDefs]="columnDef"
-            [defaultColDef]="defaultColDef"
-            (gridReady)="onGridReady"
-        >
+<!-- component.html -->
+<div class="employee-search-container">
+
+  <!-- Search controls -->
+  <div class="search-controls">
+
+    <!-- Domain dropdown — that's it, this replaces 80+ lines -->
+    <mat-form-field appearance="outline">
+      <mat-label>Domain</mat-label>
+      <mat-select [(ngModel)]="selectedDomain"
+                  (selectionChange)="onDomainChange()"
+                  [disabled]="isDropdownLoading">
+
+        <mat-option [value]="null">All domains</mat-option>
+        <mat-option *ngFor="let domain of dropdownData"
+                    [value]="domain">
+          {{ domain.name }}
+        </mat-option>
+
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Loading indicator for dropdown -->
+    <mat-spinner *ngIf="isDropdownLoading"
+                 diameter="24">
+    </mat-spinner>
+
+  </div>
+
+  <!-- Error messages -->
+  <div *ngIf="loadDropdownMessage"
+       [class]="'message ' + loadDropdownMessageType">
+    {{ loadDropdownMessage }}
+  </div>
+
+  <div *ngIf="loadGridMessage"
+       [class]="'message ' + loadGridMessageType">
+    {{ loadGridMessage }}
+  </div>
+
+  <!-- Grid -->
+  <div class="grid-wrapper">
+    <ag-grid-angular
+      style="width: 100%; height: 600px;"
+      class="ag-theme-alpine"
+      [rowData]="rowData"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [pagination]="true"
+      [paginationPageSize]="10"
+      (gridReady)="onGridReady($event)">
     </ag-grid-angular>
-    </div>
+  </div>
+
 </div>
