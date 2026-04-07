@@ -1,4 +1,5 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { EmployeeDto, DomainDto } from '../types/employee-dto';
@@ -11,10 +12,10 @@ import { EmployeeProfileService } from '../service/employee-profile.service';
 })
 export class SearchComponent implements OnInit, OnDestroy {
 
-  // Lifecycle / cleanup
+  // ── Lifecycle / cleanup
   private destroy$ = new Subject<void>();
 
-  // Grid
+  // ── Grid
   private gridApi!: GridApi;
   rowData: EmployeeDto[] = [];
 
@@ -34,24 +35,30 @@ export class SearchComponent implements OnInit, OnDestroy {
     resizable: true
   };
 
-  // Dropdown
-  dropdownData: DomainDto[] = [];
-  selectedDomain: DomainDto | null = null;
+  // ── Search form (using FormGroup for consistency)
+  searchForm!: FormGroup;
 
-  // Loading flags
+  // ── Dropdown
+  dropdownData: DomainDto[] = [];
+
+  // ── Loading flags
   isGridLoading = false;
   isDropdownLoading = false;
 
-  // Messages
+  // ── Messages
   loadGridMessage = '';
   loadGridMessageType: 'success' | 'error' = 'success';
   loadDropdownMessage = '';
   loadDropdownMessageType: 'success' | 'error' = 'success';
 
-  constructor(private service: EmployeeProfileService) { }
+  constructor(
+    private service: EmployeeProfileService,
+    private fb: FormBuilder
+  ) { }
 
-  // Lifecycle hooks
+  // ── Lifecycle hooks
   ngOnInit(): void {
+    this.initSearchForm();
     this.loadEmployees();
     this.loadDomains();
   }
@@ -61,12 +68,19 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Grid
+  // ── Init form
+  private initSearchForm(): void {
+    this.searchForm = this.fb.group({
+      domain: [null]
+    });
+  }
+
+  // ── Grid
   onGridReady(params: GridReadyEvent): void {
     this.gridApi = params.api;
   }
 
-  // Load employees (grid data)
+  // ── Load employees (grid data)
   loadEmployees(): void {
     this.isGridLoading = true;
     this.service.getAllEmployees()
@@ -83,9 +97,9 @@ export class SearchComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Load domains (dropdown data)
+  // ── Load domains (dropdown data)
   loadDomains(): void {
-    if (this.dropdownData.length > 0) return;  // already loaded, skip
+    if (this.dropdownData.length > 0) return;
 
     this.isDropdownLoading = true;
     this.service.getAllDomains()
@@ -102,11 +116,13 @@ export class SearchComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Search when user selects a domain
+  // ── Search when user selects a domain
   onDomainChange(): void {
-    if (this.selectedDomain) {
+    const selected = this.searchForm.get('domain')?.value;
+
+    if (selected) {
       this.isGridLoading = true;
-      this.service.findByDomain(this.selectedDomain.name)
+      this.service.findByDomain(selected.name)
         .pipe(
           takeUntil(this.destroy$),
           finalize(() => this.isGridLoading = false)

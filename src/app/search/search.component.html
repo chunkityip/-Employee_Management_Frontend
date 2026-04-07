@@ -1,24 +1,25 @@
-<!-- component.html -->
 <div class="employee-search-container">
 
   <!-- Search controls -->
   <div class="search-controls">
 
-    <!-- Domain dropdown — that's it, this replaces 80+ lines -->
-    <mat-form-field appearance="outline">
-      <mat-label>Domain</mat-label>
-      <mat-select [(ngModel)]="selectedDomain"
-                  (selectionChange)="onDomainChange()"
-                  [disabled]="isDropdownLoading">
+    <!-- Domain dropdown using FormGroup (consistent with rest of app) -->
+    <form [formGroup]="searchForm">
+      <mat-form-field appearance="outline">
+        <mat-label>Domain</mat-label>
+        <mat-select formControlName="domain"
+                    (selectionChange)="onDomainChange()"
+                    [disabled]="isDropdownLoading">
 
-        <mat-option [value]="null">All domains</mat-option>
-        <mat-option *ngFor="let domain of dropdownData"
-                    [value]="domain">
-          {{ domain.name }}
-        </mat-option>
+          <mat-option [value]="null">All domains</mat-option>
+          <mat-option *ngFor="let domain of dropdownData"
+                      [value]="domain">
+            {{ domain.name }}
+          </mat-option>
 
-      </mat-select>
-    </mat-form-field>
+        </mat-select>
+      </mat-form-field>
+    </form>
 
     <!-- Loading indicator for dropdown -->
     <mat-spinner *ngIf="isDropdownLoading"
