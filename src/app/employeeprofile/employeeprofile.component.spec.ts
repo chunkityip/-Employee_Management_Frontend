@@ -4,12 +4,15 @@ import { of, throwError } from 'rxjs';
 import { EmployeeProfileComponent } from './employeeprofile.component';
 import { EmployeeProfileService } from '../service/employee-profile.service';
 import { EmployeeDto } from '../types/employee-dto';
+import * as exp from 'constants';
 
 fdescribe('EmployeeProfileComponent', () => {
   let component: EmployeeProfileComponent;
   let fixture: ComponentFixture<EmployeeProfileComponent>;
   let mockService: jasmine.SpyObj<EmployeeProfileService>;
   let validEmployee: EmployeeDto; // declare here
+  let validEditEmployee: EmployeeDto;
+  let validEmpltyEmployee: EmployeeDto;
 
   beforeEach(() => {
     validEmployee = {
@@ -24,6 +27,17 @@ fdescribe('EmployeeProfileComponent', () => {
       experience: 5
     };
 
+    validEditEmployee = {
+      firstname: 'John',
+      lastname: 'Doe',
+      email: 'john@test.com',
+      password: 'Pass1234',
+      dob: '1990-01-01',
+      phone: '1234567890',
+      domain: 'backend',
+      experience: 5
+    }
+
     //Create a fake version of EmployeeProfileService
     mockService = jasmine.createSpyObj('EmployeeProfileService', [
       'createEmployee',
@@ -36,7 +50,7 @@ fdescribe('EmployeeProfileComponent', () => {
     // register all service that needed
     mockService.getAllEmployees.and.returnValue(of([]));
     mockService.existsByEmail.and.returnValue(of(false));
-    mockService.createEmployee.and.returnValue(of(void 0));
+    mockService.createEmployee.and.returnValue(of(undefined));
 
     // Amini Angular module just for test 
     TestBed.configureTestingModule({
@@ -55,7 +69,7 @@ fdescribe('EmployeeProfileComponent', () => {
 
   describe('saveEmployee()', () => {
 
-    it('should not call service when form is invalid', () => {
+    it('should not call service when edit form is invalid', () => {
       // Arrange — form is empty by default (invalid)
 
       // Act
@@ -66,25 +80,23 @@ fdescribe('EmployeeProfileComponent', () => {
       expect(mockService.createEmployee).not.toHaveBeenCalled();
     });
 
-    it('should call createEmployee with correct data and show success message', fakeAsync(() => {
+    it('should call createEmployee with correct data and show success message', () => {
       // Arrange
       component.addForm.patchValue(validEmployee);
-      mockService.createEmployee.and.returnValue(of(void 0));
+      mockService.createEmployee.and.returnValue(of(undefined));
       spyOn(component, 'loadEmployees');
 
       // Act
       component.saveEmployee();
-      tick(500);
-      tick(1500);
       fixture.detectChanges();
 
       // Assert
       expect(mockService.createEmployee).toHaveBeenCalledWith(validEmployee);
       expect(component.addFormMessageType).toBe('success');
       expect(component.loadEmployees).toHaveBeenCalled();
-    }));
+    });
 
-    it('should show error message when createEmployee fails', fakeAsync(() => {
+    it('should show error message when createEmployee fails', () => {
       // Arrange
       const mockError = new Error('Server error');
       component.addForm.patchValue(validEmployee);
@@ -92,30 +104,27 @@ fdescribe('EmployeeProfileComponent', () => {
 
       // Act
       component.saveEmployee();
-      tick(500);
       fixture.detectChanges();
 
       // Assert
       expect(component.addFormMessage).toBe('Server error');
       expect(component.addFormMessageType).toBe('error');
-    }));
+    });
 
-    it('should reset isSaving to false after success', fakeAsync(() => {
+    it('should reset isSaving to false after success', () => {
       // Arrange
       component.addForm.patchValue(validEmployee);
-      mockService.createEmployee.and.returnValue(of(void 0));
+      mockService.createEmployee.and.returnValue(of(undefined));
       spyOn(component, 'loadEmployees');
 
       // Act
       component.saveEmployee();
-      tick(500);
-      tick(1500);
 
       // Assert
       expect(component.isSaving).toBeFalse();
-    }));
+    });
 
-    it('should reset isSaving to false after error', fakeAsync(() => {
+    it('should reset isSaving to false after error', () => {
       // Arrange
       const mockError = new Error('Failed');
       component.addForm.patchValue(validEmployee);
@@ -123,11 +132,85 @@ fdescribe('EmployeeProfileComponent', () => {
 
       // Act
       component.saveEmployee();
-      tick(500);
 
       // Assert
       expect(component.isSaving).toBeFalse();
-    }));
+    });
+  });
 
+  describe('updateEmployee', () => {
+      it ('should not call service when edit form is invalid', () => {
+        // Arrange
+
+        // Act
+        component.updateEmployee();
+
+        // Assert
+        expect(component.editFormSubmitted).toBeTrue();
+        expect(mockService.updateEmployee).not.toHaveBeenCalled();
+      });
+
+      // when save successfully
+      it ('should call updateEmployee with experience and show success message ' , () => {
+        // Arrange
+        component.editForm.patchValue(validEmployee);
+        component.editForm.patchValue({experience: 10});
+        mockService.updateEmployee.and.returnValue(of(undefined));
+        spyOn(component , 'loadEmployees');
+
+        // Act
+        component.updateEmployee();
+        fixture.detectChanges();
+
+        // Assert
+        const expectedData = { ...validEditEmployee, experience: 10 };
+        expect(mockService.updateEmployee).toHaveBeenCalledWith(expectedData);
+        expect(component.editFormMessage).toBe('Employee updated successfully!');
+        expect(component.editFormMessageType).toBe('success');
+      });
+
+      // when save with error
+      it ('should show error message when updateEmployee fails' , () => {
+        const mockError = new Error('Server error');
+        component.editForm.patchValue(validEmployee);
+        component.editForm.patchValue({ experience: 10});
+        mockService.updateEmployee.and.returnValue(throwError(() => mockError));
+
+        component.updateEmployee();
+        fixture.detectChanges();
+
+        expect(component.editFormMessage).toBe('Server error');
+        expect(component.editFormMessageType).toBe('error');
+      });
+
+      // when success , finalize will run
+      it ('should reset isUpdating to false after success' , () => {
+        component.editForm.patchValue(validEmployee);
+        component.editForm.patchValue({experience : 10});
+        mockService.updateEmployee.and.callFake(() => {
+          expect(component.isUpdating).toBeTrue();
+          return of(undefined);
+        });
+        spyOn(component , 'loadEmployees');
+
+        component.updateEmployee();
+
+        expect(component.isUpdating).toBeFalse();
+      })
+
+      // when fail , finalize will run
+      it ('should reset isUpdating to false after fail' , () => {
+        component.editForm.patchValue(validEmployee);
+        component.editForm.patchValue({experience: 10});
+        mockService.updateEmployee.and.callFake(() => {
+          expect(component.isUpdating).toBeTrue();
+          return(throwError(() => new Error('fail')));
+        });
+        spyOn(component , 'loadEmployees');
+
+        component.updateEmployee();
+
+        expect(component.isUpdating).toBeFalse;
+      });
   });
 });

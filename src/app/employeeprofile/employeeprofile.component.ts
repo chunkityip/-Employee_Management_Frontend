@@ -316,7 +316,6 @@ export class EmployeeProfileComponent implements OnInit, OnDestroy {
           this.addFormMessage = 'Employee added successfully!';
           this.addFormMessageType = 'success';
           this.loadEmployees();
-          setTimeout(() => this.closeAddModal(), 1500);
         },
         error: (error: Error) => {
           this.addFormMessage = error.message;
