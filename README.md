@@ -14,20 +14,28 @@ A full-stack Angular application for managing employee records within an organiz
 
 ## Screenshots
 
-### Sign In
+### Register and Sign In
+Register page
+
+<img width="1130" height="903" alt="image" src="https://github.com/user-attachments/assets/6859420f-ceab-49b9-80b1-93be0cb8fc46" />
+
+
 Secure login page with email and password fields.
 
-![Sign In](screenshots/login.png)
+<img width="828" height="746" alt="image" src="https://github.com/user-attachments/assets/5395915a-cc7d-4454-a837-148810ae48fa" />
+
 
 ### Employee Directory
 Main dashboard showing employee count, departments, and a full employee table with edit/delete actions.
 
-![Employee Directory](screenshots/dashboard.png)
+<img width="1700" height="1159" alt="image" src="https://github.com/user-attachments/assets/e475bbd1-3f9d-46e7-9087-3c48f0c55c8e" />
 
-### Domain Filter
+
+### Search Employee
 Dropdown filter to view employees by domain (Backend, DevOps, Frontend, Fullstack, QA) with paginated results.
 
-![Domain Filter](screenshots/domain-filter.png)
+<img width="2526" height="1021" alt="image" src="https://github.com/user-attachments/assets/5afc22cd-d2e8-4ea8-b8dc-70f625840986" />
+
 
 ## Tech Stack
 
